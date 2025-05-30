@@ -1,5 +1,6 @@
 from backend import settings
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate
@@ -34,8 +35,6 @@ class ApiRegister(APIView):
         password = request.data.get('password')
         nome_completo = request.data.get('nome_completo')
         nascimento = request.data.get('nascimento')
-
-        print(username, email, password, nome_completo, nascimento)
 
         try:
             nascimento = datetime.fromisoformat(nascimento.replace('Z', '+00:00')).date()
@@ -73,3 +72,8 @@ class ApiRegister(APIView):
             return Response({'error': f'Erro ao registrar usuário {e}'}, status=500)
 
         return response
+    
+class MeAPI(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        return Response({"username": request.user.username})

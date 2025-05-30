@@ -106,7 +106,8 @@
 }
 
 body {
-  background: linear-gradient(135deg, var(--color-1), var(--color-8));
+  background: var(--color-7);
+  color: #fff;
   font-family: 'Sora', sans-serif;
 }
 
