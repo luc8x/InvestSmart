@@ -12,6 +12,8 @@
   --color-6: #6047ee;
   --color-8: #2d2172;
   --color-7: rgb(33,37,41);
+  --color-9: rgb(9, 10, 10);
+  --color-10: rgb(44, 49, 54);
   --color-12: rgba(126, 88, 240, 1);
   --color-13: rgba(126, 88, 240, 0.6);
   --radius: 0.625rem;
@@ -36,7 +38,7 @@
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
+  --sidebar: transparent;
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
   --sidebar-primary-foreground: oklch(0.985 0 0);

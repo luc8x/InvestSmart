@@ -27,7 +27,7 @@ export function middleware(request: NextRequest) {
 
   if (token && publicRoute?.whenAuthed === 'redirect') {
     const url = request.nextUrl.clone()
-    url.pathname = '/dashboard'
+    url.pathname = '/inicio'
     return NextResponse.redirect(url)
   }
 
