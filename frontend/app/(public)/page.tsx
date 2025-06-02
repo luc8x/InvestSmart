@@ -36,7 +36,7 @@ export default function LoginPage() {
                 throw new Error(data.error || "Erro ao fazer login");
             }
 
-            window.location.href = "/dashboard";
+            window.location.href = "/painel";
         } catch (err: any) {
             setError(err.message);
         } finally {
