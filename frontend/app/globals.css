@@ -43,8 +43,8 @@
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-accent: #2c3136;
+  --sidebar-accent-foreground: #fff;
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
   --background: oklch(1 0 0);
@@ -266,4 +266,22 @@ body {
 
 .dot-animate.delay-300 {
   animation-delay: 0.3s;
+}
+
+.mouse-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    600px circle at var(--mouse-x) var(--mouse-y),
+    rgba(59, 130, 246, 0.12),
+    transparent 60%
+  );
+  transition: background 0.2s ease;
+  z-index: 0;
+}
+.mouse-card {
+  position: relative;
+  z-index: 1;
 }

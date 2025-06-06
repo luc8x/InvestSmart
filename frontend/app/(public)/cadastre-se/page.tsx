@@ -38,7 +38,7 @@ export default function LoginPage() {
 
     try {
       const response = await fetch(
-        "http://localhost:8000/api/accounts/cadastre-se/",
+        "http://localhost:8001/api/accounts/cadastre-se/",
         {
           method: "POST",
           credentials: "include",

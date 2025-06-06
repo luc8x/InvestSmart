@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Alert from "@/components/Alert";
-import { User, Eye, EyeOff, DoorOpen  } from "lucide-react";
+import { User, Eye, EyeOff, DoorOpen } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 
 export default function LoginPage() {
@@ -19,7 +19,7 @@ export default function LoginPage() {
 
         try {
             const response = await fetch(
-                "http://localhost:8000/api/accounts/login/",
+                "http://localhost:8001/api/token/obtain/pair",
                 {
                     method: "POST",
                     credentials: "include",
@@ -134,19 +134,19 @@ export default function LoginPage() {
                                     type="submit"
                                     disabled={loading}
                                     className="w-full py-2 btn-d-purple transition-colors text-white font-semibold rounded-lg flex justify-center items-center gap-2 cursor-pointer disabled:opacity-50"
-                                    >
+                                >
                                     <DoorOpen />
                                     {loading ? (
                                         <span className="flex items-center gap-1">
-                                        Carregando
-                                        <span className="dot-animate">.</span>
-                                        <span className="dot-animate delay-150">.</span>
-                                        <span className="dot-animate delay-300">.</span>
+                                            Carregando
+                                            <span className="dot-animate">.</span>
+                                            <span className="dot-animate delay-150">.</span>
+                                            <span className="dot-animate delay-300">.</span>
                                         </span>
                                     ) : (
                                         "Login"
                                     )}
-                                    </button>
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -158,6 +158,7 @@ export default function LoginPage() {
                             width={600}
                             height={550}
                             className="h-full w-full object-cover rounded-r-3xl"
+                            unoptimized
                         />
                     </div>
                 </div>
