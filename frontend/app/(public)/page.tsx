@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Image from "next/image";
-import Alert from "@/components/Alert";
+import Alert from "@/components/alert";
 import { User, Eye, EyeOff, DoorOpen } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 

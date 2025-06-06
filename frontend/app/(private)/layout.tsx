@@ -18,6 +18,7 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import { Layout } from "@/components/layoutContainer"
 
 export default function PrivateLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false)
@@ -36,12 +37,7 @@ export default function PrivateLayout({ children }: { children: React.ReactNode 
   }, [pathname])
 
   return (
-    <div
-      className={`min-h-screen ${collapsed ? "sidebar-collapsed" : ""}`}
-      style={{
-        background: "linear-gradient(135deg, #2C2C2C, var(--color-9))",
-      }}
-    >
+    <Layout collapsed={collapsed}>
       <SidebarProvider>
         <AppSidebar collapsed={collapsed} />
         <SidebarInset
@@ -76,7 +72,7 @@ export default function PrivateLayout({ children }: { children: React.ReactNode 
                             <BreadcrumbItem key={item.href}>
                               <BreadcrumbLink
                                 href={item.href}
-                                className={isLast ? "text-gray-300 font-semibold pointer-events-none cursor-default" : "hover:text-gray-400"}
+                                className={isLast ? "text-gray-300 font-semibold pointer-events-none cursor-default drop-shadow-[0_0_3px_rgba(144,146,148,0.3)]" : "hover:text-gray-400"}
                                 aria-current={isLast ? "page" : undefined}
                               >
                                 {item.label}
@@ -100,6 +96,6 @@ export default function PrivateLayout({ children }: { children: React.ReactNode 
           </div>
         </SidebarInset>
       </SidebarProvider>
-    </div>
+    </Layout>
   )
 }

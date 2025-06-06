@@ -1,7 +1,6 @@
 'use client'
 
 import Cookies from 'js-cookie';
-import { MouseEffectCard } from '@/components/MouseEffectCard'
 import {
   Sidebar,
   SidebarContent,
@@ -38,6 +37,7 @@ import Link from "next/link"
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePathname } from 'next/navigation'
+import { MouseEffectCard } from './mouseEffectCard'
 
 export function AppSidebar({ collapsed }: { collapsed: boolean }) {
   const [username, setUsername] = useState<string | null>(null);
