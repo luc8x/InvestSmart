@@ -7,8 +7,8 @@ class Account(models.Model):
     idade = models.PositiveIntegerField("Idade", null=False)
     bio = models.TextField("Biografia", null=False)
     data_nascimento = models.DateField(null=False)
-    data_cadastro = models.DateTimeField("Data de Cadastro", auto_now_add=True)
-    data_atualizacao = models.DateTimeField("Data de Atualização", null=True, blank=True)
+    criado_at = models.DateTimeField("Data de Cadastro", auto_now_add=True)
+    atualizado_at = models.DateTimeField("Data de Atualização", null=True, blank=True)
     ativo = models.BooleanField("Ativo", default=True)
 
     def __str__(self):

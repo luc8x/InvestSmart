@@ -2,7 +2,9 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.conf import settings
+from rest_framework.views import APIView
 from rest_framework import status
+from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from .serializers import CustomTokenObtainPairSerializer
 
 class CustomTokenObtainPairView(TokenObtainPairView):
@@ -52,6 +54,32 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         )
 
         return response
+    
+class RefreshTokenView(APIView):
+    def post(self, request):
+        refresh_token = request.COOKIES.get('refresh_token')
+
+        if not refresh_token:
+            return Response({'detail': 'Token de refresh não encontrado.'}, status=401)
+
+        try:
+            refresh = RefreshToken(refresh_token)
+            new_access = str(refresh.access_token)
+
+            response = Response({'access': new_access})
+            response.set_cookie(
+                key='access_token',
+                value=new_access,
+                httponly=True,
+                secure=not settings.DEBUG,
+                samesite='Lax',
+                path='/',
+                max_age=3600  # 1 hora
+            )
+            return response
+
+        except TokenError:
+            return Response({'detail': 'Token de refresh inválido ou expirado.'}, status=401)
     
 @api_view(['POST'])
 def logout_view(request):

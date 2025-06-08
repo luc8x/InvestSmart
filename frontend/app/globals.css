@@ -16,6 +16,8 @@
   --color-10: rgb(44, 49, 54);
   --color-12: rgba(126, 88, 240, 1);
   --color-13: rgba(126, 88, 240, 0.6);
+  --color-14: #a65af6;
+  --color-15: #482af1;
   --btn-hover: #171717;
   --radius: 0.625rem;
   --card: oklch(1 0 0);

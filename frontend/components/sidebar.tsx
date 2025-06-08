@@ -37,7 +37,6 @@ import Link from "next/link"
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePathname } from 'next/navigation'
-import { MouseEffectCard } from './mouseEffectCard'
 
 export function AppSidebar({ collapsed }: { collapsed: boolean }) {
   const [username, setUsername] = useState<string | null>(null);
@@ -180,7 +179,7 @@ export function SidebarLink({ href, icon, label, collapsed }: SidebarLinkProps) 
   const isActive = pathname === href
   return (
     <Link href={href} className="block w-full pl-1">
-      <MouseEffectCard className={`rounded-sm ${collapsed ? 'w-8 h-8' : ''}`}>
+      <div className={`rounded-sm ${collapsed ? 'w-8 h-8' : ''}`}>
         <SidebarMenuButton
           tooltip={label}
           aria-label={label}
@@ -193,7 +192,7 @@ export function SidebarLink({ href, icon, label, collapsed }: SidebarLinkProps) 
           <span className="text-base flex items-center w-6 h-6">{icon}</span>
           {!collapsed && <span className="truncate">{label}</span>}
         </SidebarMenuButton>
-      </MouseEffectCard>
+      </div>
     </Link>
   );
 }

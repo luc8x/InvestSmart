@@ -1,5 +1,4 @@
 "use client";
-import { MouseEffectCard } from '@/components/mouseEffectCard'
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
 import {
   Card,
@@ -21,12 +20,27 @@ import { Button } from '@/components/ui/button';
 
 const chartConfig = {
   desktop: {
+    prefix: "entradas",
     label: "Desktop",
-    color: "var(--chart-1)",
+    color: "var(--color-14)",
   },
   mobile: {
+    prefix: "entradas",
     label: "Mobile",
-    color: "var(--chart-2)",
+    color: "var(--color-15)",
+  },
+} satisfies ChartConfig
+
+const chartConfigDois = {
+  desktop: {
+    prefix: "saidas",
+    label: "Desktop",
+    color: "var(--color-green-600)",
+  },
+  mobile: {
+    prefix: "saidas",
+    label: "Mobile",
+    color: "var(--color-red-600)",
   },
 } satisfies ChartConfig
 
@@ -40,86 +54,31 @@ const chartData = [
 ]
 
 import data from "./data.json"
-import { DataTable } from '@/components/data-table';
+import { DataTable } from '@/components/dataTable';
+import ChartCard from '@/components/chartCard';
 
 export default function BancosPage() {
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
       <div className="grid auto-rows-min gap-4 md:grid-cols-2">
-        <MouseEffectCard>
-          <Card className="text-white" style={{ backgroundColor: 'rgb(0, 23, 11)' }}>
-            <CardHeader className='px-5'>
-              <CardTitle>Entradas</CardTitle>
-              <CardDescription>
-                Showing total visitors for the last 6 months
-              </CardDescription>
-            </CardHeader>
-            <CardContent className='px-5'>
-              <ChartContainer config={chartConfig} className="h-60 w-full">
-                <AreaChart
-                  accessibilityLayer
-                  data={chartData}
-                  margin={{
-                    left: 12,
-                    right: 12,
-                  }}
-                >
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="month"
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    tickFormatter={(value) => value.slice(0, 3)}
-                  />
-                  <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-                  <defs>
-                    <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
-                      <stop
-                        offset="5%"
-                        stopColor="var(--color-desktop)"
-                        stopOpacity={0.8}
-                      />
-                      <stop
-                        offset="95%"
-                        stopColor="var(--color-desktop)"
-                        stopOpacity={0.1}
-                      />
-                    </linearGradient>
-                    <linearGradient id="fillMobile" x1="0" y1="0" x2="0" y2="1">
-                      <stop
-                        offset="5%"
-                        stopColor="var(--color-mobile)"
-                        stopOpacity={0.8}
-                      />
-                      <stop
-                        offset="95%"
-                        stopColor="var(--color-mobile)"
-                        stopOpacity={0.1}
-                      />
-                    </linearGradient>
-                  </defs>
-                  <Area
-                    dataKey="mobile"
-                    type="natural"
-                    fill="url(#fillMobile)"
-                    fillOpacity={0.4}
-                    stroke="var(--color-mobile)"
-                    stackId="a"
-                  />
-                  <Area
-                    dataKey="desktop"
-                    type="natural"
-                    fill="url(#fillDesktop)"
-                    fillOpacity={0.4}
-                    stroke="var(--color-desktop)"
-                    stackId="a"
-                  />
-                </AreaChart>
-              </ChartContainer>
-            </CardContent>
-            <hr />
-            <CardFooter className='px-5'>
+          <ChartCard
+            title="Receitas"
+            description="Showing total visitors for the last 6 months"
+            data={chartData}
+            config={{
+              desktop: {
+                prefix: "receitas-desktop",
+                label: "Desktop",
+                color: "var(--color-14)",
+              },
+              mobile: {
+                prefix: "receitas-mobile",
+                label: "Mobile",
+                color: "var(--color-15)",
+              },
+            }}
+            dataKeys={["mobile", "desktop"]}
+            footer={
               <div className="flex w-full items-start gap-2 text-sm">
                 <div className="grid gap-2">
                   <div className="flex items-center gap-2 leading-none font-medium">
@@ -130,84 +89,26 @@ export default function BancosPage() {
                   </div>
                 </div>
               </div>
-            </CardFooter>
-          </Card>
-        </MouseEffectCard>
-        <MouseEffectCard>
-          <Card className="text-white" style={{ backgroundColor: '#251111' }}>
-            <CardHeader className='px-5'>
-              <CardTitle>Saídas</CardTitle>
-              <CardDescription>
-                Showing total visitors for the last 6 months
-              </CardDescription>
-            </CardHeader>
-            <CardContent className='px-5'>
-              <ChartContainer config={chartConfig} className="h-60 w-full">
-                <AreaChart
-                  accessibilityLayer
-                  data={chartData}
-                  height={60}
-                  margin={{
-                    left: 12,
-                    right: 12,
-                  }}
-                >
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="month"
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    tickFormatter={(value) => value.slice(0, 3)}
-                  />
-                  <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-                  <defs>
-                    <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
-                      <stop
-                        offset="5%"
-                        stopColor="var(--color-desktop)"
-                        stopOpacity={0.8}
-                      />
-                      <stop
-                        offset="95%"
-                        stopColor="var(--color-desktop)"
-                        stopOpacity={0.1}
-                      />
-                    </linearGradient>
-                    <linearGradient id="fillMobile" x1="0" y1="0" x2="0" y2="1">
-                      <stop
-                        offset="5%"
-                        stopColor="var(--color-mobile)"
-                        stopOpacity={0.8}
-                      />
-                      <stop
-                        offset="95%"
-                        stopColor="var(--color-mobile)"
-                        stopOpacity={0.1}
-                      />
-                    </linearGradient>
-                  </defs>
-                  <Area
-                    dataKey="mobile"
-                    type="natural"
-                    fill="url(#fillMobile)"
-                    fillOpacity={0.4}
-                    stroke="var(--color-mobile)"
-                    stackId="a"
-                  />
-                  <Area
-                    dataKey="desktop"
-                    type="natural"
-                    fill="url(#fillDesktop)"
-                    fillOpacity={0.4}
-                    stroke="var(--color-desktop)"
-                    stackId="a"
-                  />
-                </AreaChart>
-              </ChartContainer>
-            </CardContent>
-            <hr />
-            <CardFooter className='px-5'>
+            }
+          />
+          <ChartCard
+            title="Despesas"
+            description="Showing total visitors for the last 6 months"
+            data={chartData}
+            config={{
+              desktop: {
+                prefix: "despesas-desktop",
+                label: "Desktop",
+                color: "var(--color-green-600)",
+              },
+              mobile: {
+                prefix: "despesas-mobile",
+                label: "Mobile",
+                color: "var(--color-red-600)",
+              },
+            }}
+            dataKeys={["mobile", "desktop"]}
+            footer={
               <div className="flex w-full items-start gap-2 text-sm">
                 <div className="grid gap-2">
                   <div className="flex items-center gap-2 leading-none font-medium">
@@ -218,43 +119,16 @@ export default function BancosPage() {
                   </div>
                 </div>
               </div>
-            </CardFooter>
-          </Card>
-        </MouseEffectCard>
+            }
+          />
       </div>
       <div className="grid auto-rows-min gap-4 md:grid-cols-1">
-        <MouseEffectCard>
-          {/* <Card className="text-white shadow-lg" style={{ background: '#222' }}>
-          <CardHeader className="flex flex-row items-start justify-between">
-            <div>
-              <CardTitle className="text-lg">Cadastrar Banco</CardTitle>
-              <CardDescription>Adicione um novo banco ao sistema</CardDescription>
-            </div>
-            <CardAction>
-              <Button variant="ghost" size="sm">
-                <MoreVertical className="h-4 w-4" />
-              </Button>
-            </CardAction>
-          </CardHeader>
-
-          <CardContent>
-            <Button variant="secondary">Novo Banco</Button>
-          </CardContent>
-
-          <hr />
-
-          <CardFooter>
-            <p className="text-muted-foreground text-sm">
-              Gerencie suas instituições financeiras de forma prática.
-            </p>
-          </CardFooter>
-        </Card> */}
 
           <Card className="text-white shadow-lg" style={{ background: '#222' }}>
             <CardHeader className="flex flex-row items-start justify-between">
               <div>
-                <CardTitle className="text-lg">Cadastrar Banco</CardTitle>
-                <CardDescription>Adicione um novo banco ao sistema</CardDescription>
+                <CardTitle className="text-lg">Bancos</CardTitle>
+                <CardDescription>Gerencie suas instituições financeiras de forma prática</CardDescription>
               </div>
               <CardAction>
                 <Button variant="ghost" size="sm">
@@ -262,20 +136,13 @@ export default function BancosPage() {
                 </Button>
               </CardAction>
             </CardHeader>
-
+            <hr />
             <CardContent>
               <DataTable data={data} />
             </CardContent>
 
-            <hr />
-
-            <CardFooter>
-              <p className="text-muted-foreground text-sm">
-                Gerencie suas instituições financeiras de forma prática.
-              </p>
-            </CardFooter>
           </Card>
-        </MouseEffectCard>
+
       </div>
 
     </div>
