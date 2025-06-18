@@ -19,6 +19,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { Layout } from "@/components/layoutContainer"
+import React from "react"
 
 export default function PrivateLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false)
@@ -66,31 +67,31 @@ export default function PrivateLayout({ children }: { children: React.ReactNode 
                   <Breadcrumb>
                     <BreadcrumbList>
                       {breadcrumbItems.map((item, index) => {
-                        const isLast = index === breadcrumbItems.length - 1
+                        const isLast = index === breadcrumbItems.length - 1;
                         return (
-                          <>
-                            <BreadcrumbItem key={item.href}>
+                          <React.Fragment key={item.href}>
+                            <BreadcrumbItem>
                               <BreadcrumbLink
                                 href={item.href}
-                                className={isLast ? "text-gray-300 font-semibold pointer-events-none cursor-default drop-shadow-[0_0_3px_rgba(144,146,148,0.3)]" : "hover:text-gray-400"}
+                                className={
+                                  isLast
+                                    ? "text-gray-300 font-semibold pointer-events-none cursor-default drop-shadow-[0_0_3px_rgba(144,146,148,0.3)]"
+                                    : "hover:text-gray-400"
+                                }
                                 aria-current={isLast ? "page" : undefined}
                               >
                                 {item.label}
                               </BreadcrumbLink>
                             </BreadcrumbItem>
-                            {index < breadcrumbItems.length - 1 && (
-                              <BreadcrumbSeparator key={`sep-${item.href}`} />
-                            )}
-                          </>
-                        )
+                            {index < breadcrumbItems.length - 1 && <BreadcrumbSeparator />}
+                          </React.Fragment>
+                        );
                       })}
                     </BreadcrumbList>
                   </Breadcrumb>
                 </div>
-
                 <div><Input type="text" placeholder="Procurar" className="h-8" /></div>
               </div>
-
               {children}
             </main>
           </div>

@@ -1,44 +1,41 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from 'next/navigation';
 import Image from "next/image";
 import Alert from "@/components/alert";
 import { User, Eye, EyeOff, DoorOpen } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { loginUser } from "@/utils/usersServices";
 
-export default function LoginPage() {
-    const [username, setUsername] = useState("");
+export default function loginPage() {
+    const router = useRouter();
+    const [cpf, setCpf] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [showPassword, setShowPassword] = useState(false);
 
-    const handleLogin = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
         setLoading(true);
         setError("");
 
+        if (!cpf.trim() || !password.trim()) {
+            setError("Por favor, preencha todos os campos.");
+            setLoading(false);
+            return;
+        }
+
         try {
-            const response = await fetch(
-                "http://localhost:8001/api/token/obtain/pair",
-                {
-                    method: "POST",
-                    credentials: "include",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ username, password }),
-                }
-            );
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || "Erro ao fazer login");
+            const ok = await loginUser(cpf, password);
+            if (ok) {
+                router.push('/painel');
+            } else {
+                setError("Login inválido.");
             }
-
-            window.location.href = "/painel";
         } catch (err: any) {
-            setError(err.message);
+            setError(err.message || "Erro inesperado ao fazer login.");
         } finally {
             setLoading(false);
         }
@@ -60,7 +57,7 @@ export default function LoginPage() {
 
                         <form
                             className="flex flex-col gap-4 p-6 rounded-xl shadow-lg border border-white/30 backdrop-blur bg-white/10"
-                            onSubmit={handleLogin}
+                            onSubmit={handleSubmit}
                         >
                             <div>
                                 <p className="font-semibold text-white mb-2">
@@ -68,18 +65,18 @@ export default function LoginPage() {
                                 </p>
 
                                 <div className="mb-4">
-                                    <label htmlFor="username" className="text-white block mb-1">
-                                        Usuário
+                                    <label htmlFor="cpf" className="text-white block mb-1">
+                                        CPF
                                     </label>
-                                    <div className="flex items-center rounded-lg shadow-sm bg-transparent border border-white/70 rounded-lg">
+                                    <div className="flex items-center shadow-sm bg-transparent border border-white/70 rounded-lg">
                                         <input
                                             type="text"
-                                            id="username"
-                                            name="username"
-                                            value={username}
-                                            onChange={(e) => setUsername(e.target.value)}
+                                            id="cpf"
+                                            name="cpf"
+                                            value={cpf}
+                                            onChange={(e) => setCpf(e.target.value)}
                                             className="flex-1 bg-transparent text-white placeholder-white/70 focus:outline-none py-2 px-3 pr-0 rounded-l-lg"
-                                            placeholder="Digite seu usuário"
+                                            placeholder="Digite seu CPF"
                                             required
                                         />
                                         <User className="text-white w-10 h-5" />

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Alert from "@/components/alert";
+
 import {
   User,
   CircleUserRound,
@@ -20,45 +21,34 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { format } from "date-fns";
+import { registerUser } from "@/utils/usersServices";
 
 export default function LoginPage() {
-  const [nascimento, setNascimento] = useState<Date>();
-  const [username, setUsername] = useState("");
+  const [cpf, setCpf] = useState("");
   const [nome_completo, setNomeCompleto] = useState("");
+  const [dataNascimento, setDataNascimento] = useState<Date>();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
-    try {
-      const response = await fetch(
-        "http://localhost:8001/api/accounts/cadastre-se/",
-        {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ nome_completo, nascimento, email, username, password }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Erro ao tentar se cadastrar");
-      }
-
+    
+    if(cpf==="" || email==="" || dataNascimento===undefined || nome_completo==="" || password==="") {
+      return
+    }
+    
+    try{
+      const dataNascimento_f = new Date(dataNascimento).toISOString().split('T')[0]; 
+      await registerUser(cpf, email, dataNascimento_f, nome_completo, password);
       window.location.href = "/painel";
     } catch (err: any) {
       setError(err.message);
-    } finally {
       setLoading(false);
     }
   };
@@ -91,7 +81,7 @@ export default function LoginPage() {
 
             <form
               className="flex flex-col gap-4 p-6 rounded-xl shadow-lg border border-white/30 backdrop-blur bg-white/10"
-              onSubmit={handleLogin}
+              onSubmit={handleSubmit}
             >
               <div>
                 <div className="flex justify-between">
@@ -112,9 +102,9 @@ export default function LoginPage() {
                     htmlFor="nome_completo"
                     className="text-white block mb-1"
                   >
-                    Nome Completo
+                    Nome completo
                   </label>
-                  <div className="flex items-center rounded-lg shadow-sm bg-transparent border border-white/70 rounded-lg">
+                  <div className="flex items-center shadow-sm bg-transparent border border-white/70 rounded-lg">
                     <input
                       type="text"
                       id="nome_completo"
@@ -130,18 +120,18 @@ export default function LoginPage() {
                 </div>
 
                 <div className="mb-4">
-                  <label htmlFor="username" className="text-white block mb-1">
-                    Usuário
+                  <label htmlFor="cpf" className="text-white block mb-1">
+                    CPF
                   </label>
-                  <div className="flex items-center rounded-lg shadow-sm bg-transparent border border-white/70 rounded-lg">
+                  <div className="flex items-center shadow-sm bg-transparent border border-white/70 rounded-lg">
                     <input
                       type="text"
-                      id="username"
-                      name="username"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
+                      id="cpf"
+                      name="cpf"
+                      value={cpf}
+                      onChange={(e) => setCpf(e.target.value)}
                       className="flex-1 bg-transparent text-white placeholder-white/70 focus:outline-none py-2 px-3 pr-0 rounded-l-lg"
-                      placeholder="Digite seu usuário"
+                      placeholder="Digite seu CPF"
                       required
                     />
                     <CircleUserRound className="text-white w-10 h-5" />
@@ -149,52 +139,38 @@ export default function LoginPage() {
                 </div>
 
                 <div className="mb-4">
-                  <label htmlFor="nascimento" className="text-white block mb-1">
-                    Data de Nascimento
+                  <label htmlFor="dataNascimento" className="text-white block mb-1">
+                    Data de nascimento
                   </label>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
+                        <Button
+                        variant={"outline"}
                         className={cn(
-                          "justify-between text-left font-normal bg-transparent border-white/70 text-white w-full hover:bg-transparent",
-                          !nascimento && "text-white hover:text-white"
+                            "w-[280px] justify-start text-left font-normal",
+                            !dataNascimento && "text-muted-foreground"
                         )}
-                      >
-                        {nascimento ? (
-                          <span className="text-white hover:text-white">
-                            {formatDate(nascimento)}
-                          </span>
-                        ) : (
-                          <span>Selecione a data</span>
-                        )}
-                        <CalendarIcon className="h-4 w-4 text-white hover:text-white" />
-                      </Button>
+                        >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {dataNascimento ? format(dataNascimento, "dd/MM/yyyy") : <span>Selecione uma data</span>}
+                        </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
+                    <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
                         mode="single"
-                        selected={nascimento}
-                        onSelect={setNascimento}
+                        selected={dataNascimento}
+                        onSelect={setDataNascimento}
                         initialFocus
-                        captionLayout="dropdown-buttons"
+                        captionLayout="dropdown"
                         fromYear={1960}
                         toYear={new Date().getFullYear()}
-                        className="p-3"
-                        classNames={{
-                          caption_label: "hidden",
-                        }}
-                        labels={{
-                          labelMonthDropdown: () => "Mês:",
-                          labelYearDropdown: () => "Ano:",
-                        }}
-                      />
+                        />
                     </PopoverContent>
-                  </Popover>
+                    </Popover>
                   <input
                     type="hidden"
-                    name="nascimento"
-                    value={nascimento ? format(nascimento, "yyyy-MM-dd") : ""}
+                    name="dataNascimento"
+                    value={dataNascimento ? format(dataNascimento, "yyyy-MM-dd") : ""}
                   />
                 </div>
 
@@ -202,7 +178,7 @@ export default function LoginPage() {
                   <label htmlFor="email" className="text-white block mb-1">
                     Email
                   </label>
-                  <div className="flex items-center rounded-lg shadow-sm bg-transparent border border-white/70 rounded-lg">
+                  <div className="flex items-center shadow-sm bg-transparent border border-white/70 rounded-lg">
                     <input
                       type="email"
                       id="email"

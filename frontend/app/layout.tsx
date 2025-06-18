@@ -1,5 +1,6 @@
 import './globals.css'
 import { ReactNode } from 'react'
+import { Toaster } from "@/components/ui/sonner"
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -10,7 +11,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="pt-BR">
-      <body>{children}</body>
+      <body cz-shortcut-listen="true">
+        {children}
+        <Toaster />
+      </body>
+
     </html>
   )
 }

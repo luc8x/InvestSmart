@@ -1,6 +1,6 @@
 'use client'
 
-import Cookies from 'js-cookie';
+import { getInitials } from '@/utils/utils';
 import {
   Sidebar,
   SidebarContent,
@@ -31,37 +31,27 @@ import {
   ChevronsUpDown,
   LogOut,
   Landmark,
+  CircleUser,
 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { usePathname } from 'next/navigation'
+import { getUserFromCookies, logoutUser } from '@/utils/usersServices';
 
 export function AppSidebar({ collapsed }: { collapsed: boolean }) {
-  const [username, setUsername] = useState<string | null>(null);
-  const router = useRouter();
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const storedUsername = Cookies.get('username');
-    setUsername(storedUsername || '');
-  }, []);
-  const handleLogout = async () => {
-    try {
-      const response = await fetch('http://localhost:8001/api/logout/', {
-        method: 'POST',
-        credentials: 'include',
-      });
-
-      if (response.ok) {
-        Cookies.remove('username');
-        router.push('/login');
-      } else {
-        console.error('Erro ao deslogar');
-      }
-    } catch (error) {
-      console.error('Erro de rede:', error);
+    const userData:any = getUserFromCookies();
+    if (userData) {
+      setUser(userData);
     }
+  }, []);
+
+
+  const handleLogout = async () => {
+    await logoutUser();
   };
 
   const { isMobile } = useSidebar()
@@ -122,11 +112,13 @@ export function AppSidebar({ collapsed }: { collapsed: boolean }) {
                 >
                   <Avatar className="h-8 w-8 rounded-lg">
                     <AvatarImage src="/img/logo.png" alt="{}" />
-                    <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                    <AvatarFallback className="rounded-lg">
+                      {getInitials(user?.nome_completo || '')}
+                    </AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-medium">
-                      {username || 'Usuário'}
+                      {user?.nome_completo}
                     </span>
                     <span className="truncate text-xs">
                       Usuário
@@ -145,16 +137,26 @@ export function AppSidebar({ collapsed }: { collapsed: boolean }) {
                   <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                     <Avatar className="h-8 w-8 rounded-lg">
                       <AvatarImage src="" alt="" />
-                      <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                      <AvatarFallback className="rounded-lg">
+                        {getInitials(user?.nome_completo || '')}
+                      </AvatarFallback>
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight">
-                      <span className="truncate font-medium">{username}</span>
-                      <span className="truncate text-xs">{ }</span>
+                      <span className="truncate font-medium">{user?.nome_completo}</span>
+                      <span className="truncate text-xs">{user?.email}</span>
                     </div>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>
+                  <DropdownMenuItem>
+                  <a href={'/perfil'} className='w-full'>
+                  <div className='flex gap-2'>
+                      <CircleUser  />
+                      Perfil
+                  </div>
+                  </a>
+                  </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout} className='cursor-pointer'>
                   <LogOut />
                   Sair
                 </DropdownMenuItem>
@@ -178,7 +180,7 @@ export function SidebarLink({ href, icon, label, collapsed }: SidebarLinkProps) 
   const pathname = usePathname()
   const isActive = pathname === href
   return (
-    <Link href={href} className="block w-full pl-1">
+    <a href={href} className="block w-full pl-1">
       <div className={`rounded-sm ${collapsed ? 'w-8 h-8' : ''}`}>
         <SidebarMenuButton
           tooltip={label}
@@ -187,12 +189,12 @@ export function SidebarLink({ href, icon, label, collapsed }: SidebarLinkProps) 
             ${collapsed 
               ? "justify-start px-0 w-6 h-6" 
               : "justify-start px-2"}
-            ${isActive ? 'bg-sidebar-accent text-white font-semibold' : 'hover:bg-gray-800'}`}
+            ${isActive ? 'bg-gray-700 text-white font-semibold' : 'hover:bg-gray-400 hover:text-accent-foreground'}`}
         >
           <span className="text-base flex items-center w-6 h-6">{icon}</span>
           {!collapsed && <span className="truncate">{label}</span>}
         </SidebarMenuButton>
       </div>
-    </Link>
+    </a>
   );
 }

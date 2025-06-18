@@ -1,17 +1,17 @@
-// middleware.ts
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 const publicRoutes = [
-  { path: '/', whenAuthed: 'redirect' },         // login
+  { path: '/', whenAuthed: 'redirect' },          // página de login
   { path: '/cadastre-se', whenAuthed: 'redirect' }
 ]
 
-const REDIRECT_WHEN_NOT_AUTHENTICATED_ROUTE = '/' // login
+const REDIRECT_WHEN_NOT_AUTHENTICATED_ROUTE = '/' // página de login
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
-  const token = request.cookies.get('access_token')
+
+  const token = request.cookies.get('access_token')?.value
 
   const publicRoute = publicRoutes.find(route => route.path === pathname)
 

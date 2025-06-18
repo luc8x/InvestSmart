@@ -1,48 +1,12 @@
 "use client";
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardAction,
   CardTitle,
 } from "@/components/ui/card"
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart"
-import { MoreVertical } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-
-const chartConfig = {
-  desktop: {
-    prefix: "entradas",
-    label: "Desktop",
-    color: "var(--color-14)",
-  },
-  mobile: {
-    prefix: "entradas",
-    label: "Mobile",
-    color: "var(--color-15)",
-  },
-} satisfies ChartConfig
-
-const chartConfigDois = {
-  desktop: {
-    prefix: "saidas",
-    label: "Desktop",
-    color: "var(--color-green-600)",
-  },
-  mobile: {
-    prefix: "saidas",
-    label: "Mobile",
-    color: "var(--color-red-600)",
-  },
-} satisfies ChartConfig
 
 const chartData = [
   { month: "January", desktop: 186, mobile: 80 },
@@ -53,9 +17,9 @@ const chartData = [
   { month: "June", desktop: 214, mobile: 140 },
 ]
 
-import data from "./data.json"
 import { DataTable } from '@/components/dataTable';
 import ChartCard from '@/components/chartCard';
+import AddBankForm from "@/components/addBankForm";
 
 export default function BancosPage() {
   return (
@@ -109,7 +73,7 @@ export default function BancosPage() {
             }}
             dataKeys={["mobile", "desktop"]}
             footer={
-              <div className="flex w-full items-start gap-2 text-sm">
+              <div className="flex w-full items-start gap-2 text-sm w">
                 <div className="grid gap-2">
                   <div className="flex items-center gap-2 leading-none font-medium">
                     Trending up by 5.2% this month
@@ -123,7 +87,6 @@ export default function BancosPage() {
           />
       </div>
       <div className="grid auto-rows-min gap-4 md:grid-cols-1">
-
           <Card className="text-white shadow-lg" style={{ background: '#222' }}>
             <CardHeader className="flex flex-row items-start justify-between">
               <div>
@@ -131,20 +94,15 @@ export default function BancosPage() {
                 <CardDescription>Gerencie suas instituições financeiras de forma prática</CardDescription>
               </div>
               <CardAction>
-                <Button variant="ghost" size="sm">
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
+                <AddBankForm />
               </CardAction>
             </CardHeader>
             <hr />
             <CardContent>
-              <DataTable data={data} />
+              <DataTable />
             </CardContent>
-
           </Card>
-
       </div>
-
     </div>
   )
 }
