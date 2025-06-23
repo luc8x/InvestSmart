@@ -16,26 +16,29 @@ export const registerUser = async (cpf: any, email: any, data_nascimento: any, n
   return response.data;
 };
 
-export const loginUser = async (cpf: any, password: any) => {
+export const loginUser = async (cpf: string, password: string) => {
   try {
     const res = await usersAPI.post('login/', { cpf, password });
-    const access_token = res.data.access_token;
+    const { access_token, user } = res.data;
 
     nookies.set(null, 'access_token', access_token, {
       maxAge: 60 * 60 * 24,
       path: '/',
-      httpOnly: false,
-      secure: false,
-      sameSite: 'lax',
     });
 
-    nookies.set(null, 'user_info', JSON.stringify(res.data.user), {
+    if (user.perfil.foto) {
+      localStorage.setItem('user_foto', user.perfil.foto);
+      user.perfil.foto = null;
+    }
+
+    nookies.set(null, 'user_info', JSON.stringify(user), {
       maxAge: 60 * 60 * 24,
       path: '/',
     });
 
     return true;
   } catch (err) {
+    console.error('Login error:', err);
     return false;
   }
 };
@@ -44,6 +47,7 @@ export const getUserFromCookies = (): User | null => {
   try {
     const cookies = nookies.get();
     const user = cookies.user_info ? JSON.parse(cookies.user_info) : null;
+    user.perfil.foto = localStorage.getItem('user_foto');
     return user;
   } catch (error) {
     console.error('Erro ao ler user_info dos cookies:', error);
@@ -53,6 +57,9 @@ export const getUserFromCookies = (): User | null => {
 
 export const logoutUser = async (ctx = null) => {
   nookies.destroy(ctx, 'user_info');
+  if (localStorage.getItem('user_foto')){
+    localStorage.removeItem('user_foto');
+  }
   nookies.destroy(ctx, 'access_token');
   window.location.href = '/';
 };
@@ -62,20 +69,21 @@ export const getUserInfo = async () => {
   return res.data;
 };
 
-export const updateUserInfo = async (data: any) => {
+export const updateUserInfo = async (data: FormData) => {
   const res = await usersAPI.put('me/', data);
+  
+  if (res.status === 200) {
+
+    if (res.data.perfil.foto) {
+      localStorage.setItem('user_foto', res.data.perfil.foto);
+      res.data.perfil.foto = null;
+    }
+
+    nookies.set(null, 'user_info', JSON.stringify(res.data), {
+      maxAge: 60 * 60 * 24,
+      path: '/',
+    });
+  }
+
   return res.data;
-};
-
-export const uploadFoto = async (data: any) => {
-  if (!data) return '';
-
-  const formData = new FormData();
-  formData.append('foto', data);
-
-  const res = await usersAPI.post('upload-photo/', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
-
-  return res.data.foto_url;
 };

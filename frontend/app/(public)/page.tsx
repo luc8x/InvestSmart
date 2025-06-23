@@ -32,7 +32,7 @@ export default function loginPage() {
             if (ok) {
                 router.push('/painel');
             } else {
-                setError("Login inválido.");
+                setError("Credenciais Inválida.");
             }
         } catch (err: any) {
             setError(err.message || "Erro inesperado ao fazer login.");

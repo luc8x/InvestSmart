@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
-import { Camera, UserRoundPen  } from 'lucide-react';
+import { Camera, UserRoundPen } from 'lucide-react';
 
 import {
     Card,
@@ -25,24 +25,43 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
-import { getUserFromCookies, updateUserInfo, uploadFoto } from '@/utils/usersServices';
+import { getUserFromCookies, updateUserInfo } from '@/utils/usersServices';
+
+interface User {
+    id: number;
+    nome_completo: string;
+    cpf: string;
+    email: string;
+    data_nascimento: Date;
+    perfil: {
+        telefone: string,
+        genero: string,
+        complemento: string,
+        bairro: string,
+        cidade: string,
+        estado: string,
+        cep: string,
+        foto: string,
+        logradouro: string,
+        numero: string,
+
+    }
+}
+
+export const parseDate = (date: string | null | undefined): Date | null => {
+    if (!date) return null;
+    const d = new Date(date);
+    return isNaN(d.getTime()) ? null : d;
+};
 
 export default function PerfilPage() {
 
-    const [user, setUser] = useState(null);
-
-    useEffect(() => {
-        const userData: any = getUserFromCookies();
-        if (userData) {
-            setUser(userData);
-        }
-    }, []);
-
+    const [user, setUser] = useState<User>();
     const [nomeCompleto, setNomeCompleto] = useState('');
     const [email, setEmail] = useState('');
     const [cpf, setCpf] = useState('');
-    const [foto, setFoto] = useState<string | null>(null);
-    const [fotoFile, setFotoFile] = useState<File | null>(null);
+    const [foto, setFoto] = useState<string | null>();
+    const [fotoFile, setFotoFile] = useState<File | null>();
 
     const [telefone, setTelefone] = useState('');
     const [genero, setGenero] = useState('');
@@ -55,70 +74,94 @@ export default function PerfilPage() {
     const [cep, setCep] = useState('');
     const [dataNascimento, setDataNascimento] = useState<Date | undefined>();
 
+    useEffect(() => {
+        const userData: any = getUserFromCookies();
+        if (userData) {
+            console.log(userData)
+            setUser(userData);
+            setDataNascimento(parseDate(userData?.data_nascimento));
+        }
+    }, []);
+
+    console.log(dataNascimento)
+
+
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-        const file = e.target.files[0];
-        setFotoFile(file);
-        const previewUrl = URL.createObjectURL(file);
-        setFoto(previewUrl);
-    }
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            setFotoFile(file);
+            const previewUrl = URL.createObjectURL(file);
+            setFoto(previewUrl);
+        }
     };
 
     useEffect(() => {
         if (!user) return;
 
-        setNomeCompleto(user.nome_completo || null);
-        setEmail(user.email || null);
-        setCpf(user.cpf || null);
-        setFoto(user.perfil?.foto || null);
-        setTelefone(user.perfil?.telefone || null);
-        setGenero(user.perfil?.genero || null);
-        setLogradouro(user.perfil?.logradouro || null);
-        setNumero(user.perfil?.numero || null);
-        setComplemento(user.perfil?.complemento || null);
-        setBairro(user.perfil?.bairro || null);
-        setCidade(user.perfil?.cidade || null);
-        setEstado(user.perfil?.estado || null);
-        setCep(user.perfil?.cep || null);
-        setDataNascimento(user.data_nascimento ? new Date(user.data_nascimento) : null);
+        setNomeCompleto(user.nome_completo);
+        setEmail(user.email);
+        setCpf(user.cpf);
+        setFoto(user.perfil?.foto);
+        setTelefone(user.perfil?.telefone);
+        setGenero(user.perfil?.genero);
+        setLogradouro(user.perfil?.logradouro);
+        setNumero(user.perfil?.numero);
+        setComplemento(user.perfil?.complemento);
+        setBairro(user.perfil?.bairro);
+        setCidade(user.perfil?.cidade);
+        setEstado(user.perfil?.estado);
+        setCep(user.perfil?.cep);
+        setDataNascimento(new Date(user.data_nascimento));
     }, [user]);
-    
+
+    const fileToBase64 = (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = error => reject(error);
+        });
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        let fotoUrl = '';
-
+        let fotoBase64 = null;
         if (fotoFile) {
-            fotoUrl = await uploadFoto(foto);
+            fotoBase64 = await fileToBase64(fotoFile);
         }
 
-        const payload = {
-            nome_completo,
-            email,
-            cpf,
-            data_nascimento: dataNascimento?.toISOString().split('T')[0] || null,
-            perfil: {
-            telefone,
-            genero,
-            logradouro,
-            numero,
-            complemento,
-            bairro,
-            cidade,
-            estado,
-            cep,
-            foto: fotoUrl || foto, 
-            },
-        };
+        const formData = new FormData();
+        formData.append('nome_completo', nomeCompleto);
+        formData.append('email', email);
+        formData.append('cpf', cpf);
+        formData.append(
+            'data_nascimento',
+            dataNascimento ? dataNascimento.toISOString().split('T')[0] : ''
+        );
+        formData.append('telefone', telefone);
+        formData.append('genero', genero);
+        formData.append('logradouro', logradouro);
+        formData.append('numero', numero);
+        formData.append('complemento', complemento);
+        formData.append('bairro', bairro);
+        formData.append('cidade', cidade);
+        formData.append('estado', estado);
+        formData.append('cep', cep);
+        if (fotoBase64) {
+            formData.append('foto', fotoBase64);
+        }
 
         try {
-            const updatedUser = await updateUserInfo(payload);
+            const updatedUser = await updateUserInfo(formData);
             setUser(updatedUser);
             toast.success('Perfil atualizado com sucesso!');
-        } catch {
+        } catch (error) {
+            console.error(error);
             toast.error('Erro ao atualizar perfil.');
         }
     };
+
 
     return (
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
@@ -147,12 +190,12 @@ export default function PerfilPage() {
                                 <img
                                     src={foto || "/img/avatar-placeholder.png"}
                                     alt="Foto de perfil"
-                                    className="rounded-xl w-24 h-24 object-cover border"
+                                    className="rounded-xl w-100 h-100 object-cover border"
                                 />
-                                
+
                                 <label htmlFor="foto-upload" className="cursor-pointer">
                                     <Button variant="secondary" asChild>
-                                    <span><Camera /> Alterar Foto</span>
+                                        <span><Camera /> Alterar Foto</span>
                                     </Button>
                                 </label>
 
@@ -163,7 +206,7 @@ export default function PerfilPage() {
                                     className="hidden"
                                     onChange={handleFileChange}
                                 />
-                                </div>
+                            </div>
 
                             {/* Formulário Dados Pessoais */}
                             <form className="flex flex-col gap-6 lg:col-span-2" onSubmit={handleSubmit}>
@@ -204,7 +247,7 @@ export default function PerfilPage() {
                                         <Popover>
                                             <PopoverTrigger asChild>
                                                 <Button
-                                                    variant="outline"
+                                                    variant="dark"
                                                     className={cn(
                                                         "justify-start text-left font-normal",
                                                         !dataNascimento && "text-muted-foreground"
@@ -212,13 +255,14 @@ export default function PerfilPage() {
                                                 >
                                                     <CalendarIcon className="mr-2 h-4 w-4" />
                                                     {dataNascimento
-                                                        ? format(dataNascimento, "dd/MM/yyyy")
-                                                        : "Selecione uma data"}
+                                                        ? format(dataNascimento, 'dd/MM/yyyy')
+                                                        : 'Selecione uma data'}
                                                 </Button>
                                             </PopoverTrigger>
                                             <PopoverContent className="w-auto p-0" align="start">
                                                 <Calendar
                                                     mode="single"
+                                                    buttonVariant={"secondary"}
                                                     selected={dataNascimento}
                                                     onSelect={setDataNascimento}
                                                     captionLayout="dropdown"
@@ -333,7 +377,7 @@ export default function PerfilPage() {
 
                                 <div className="flex justify-end">
                                     <Button type="submit">
-                                        <UserRoundPen/> Salvar Alterações
+                                        <UserRoundPen /> Salvar Alterações
                                     </Button>
                                 </div>
                             </form>

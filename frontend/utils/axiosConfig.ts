@@ -7,14 +7,17 @@ export const createAPI = (baseURL: string) => {
     withCredentials: true,
   });
 
-  api.interceptors.request.use((config) => {
-    const cookies = nookies.get(null);
-    const token = cookies.access_token;
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  });
+  api.interceptors.request.use(
+    (config) => {
+      const { access_token } = nookies.get(null, 'access_token');
+      if (access_token) {
+        config.headers.Authorization = `Bearer ${access_token}`;
+        console.log(access_token)
+      }
+      return config;
+    },
+    (error) => Promise.reject(error)
+  );
 
   return api;
 };

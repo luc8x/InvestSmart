@@ -48,7 +48,7 @@ class UserPerfil(models.Model):
 
     telefone = models.CharField(max_length=20, blank=True, null=True)
     genero = models.CharField(max_length=1, choices=GENERO_CHOICE, null=True, blank=True)
-    foto = models.ImageField(upload_to='perfil_fotos/', blank=True, null=True)
+    foto = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return f'Perfil de {self.user.nome_completo}'

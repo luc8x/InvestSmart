@@ -64,7 +64,6 @@ __pycache__/
 /backend/htmlcov/
 
 # arquivos estáticos e mídia (Django)
-/backend/staticfiles/
 /backend/media/
 
 # arquivos de ambiente

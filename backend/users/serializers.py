@@ -1,35 +1,20 @@
-from rest_framework.serializers import ModelSerializer, Serializer
+from rest_framework.serializers import ModelSerializer
 from rest_framework import serializers
 from .models import CustomUser, UserPerfil
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate,login
 
 class UserPerfilSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserPerfil
-        fields = '__all__'
-        read_only_fields = ['user']
-
+        fields = [
+            'user', 'telefone', 'genero', 'logradouro', 'numero', 'complemento',
+            'bairro', 'cidade', 'estado', 'cep', 'foto'
+        ]
 
 class UserSerializer(serializers.ModelSerializer):
-    perfil = UserPerfilSerializer()
-
     class Meta:
         model = CustomUser
-        fields = ['id', 'nome_completo', 'email', 'cpf', 'data_nascimento', 'perfil']
-
-    def update(self, instance, validated_data):
-        perfil_data = validated_data.pop('perfil', {})
-        perfil, created = UserPerfil.objects.get_or_create(user=instance)
-
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
-
-        for attr, value in perfil_data.items():
-            setattr(perfil, attr, value)
-        perfil.save()
-
-        return instance
+        fields = ['id', 'nome_completo', 'email', 'cpf', 'data_nascimento']
         
 class RegisterUserSerializer(ModelSerializer):
     class Meta:
@@ -42,17 +27,18 @@ class RegisterUserSerializer(ModelSerializer):
         user = CustomUser(**validated_data)
         user.set_password(password)
         user.save()
+        UserPerfil.objects.create(user=user)
         return user
     
+
 class LoginUserSerializer(serializers.Serializer):
     cpf = serializers.CharField(required=True)
     password = serializers.CharField(write_only=True)
 
     def validate(self, data):
         user = authenticate(cpf=data.get('cpf'), password=data.get('password'))
-
-        if user and user.is_active:
-            data['user'] = user
-            return data
-
-        raise serializers.ValidationError("Credenciais inválidas.")
+        if not user or not user.is_active:
+            raise serializers.ValidationError("Credenciais inválidas.")
+        data['user'] = user
+        print('data',data)
+        return data
