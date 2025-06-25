@@ -147,21 +147,11 @@ body {
 }
 
 .card-bg-d-purple {
-  background: linear-gradient(90deg, var(--color-4) 30%, var(--color-2) 90%);
+  background: linear-gradient(90deg, #3c0e60 30%, #381467 150%);
 }
 
 .card-bg-d-purple-2 {
   background: linear-gradient(90deg, #501380 30%, #2a0f4d 90%);
-}
-
-@media screen and (max-width: 768px) {
-  .card-bg-d-purple {
-    background: linear-gradient(90deg, var(--color-4) 30%, var(--color-2) 150%);
-  }
-
-  .card-bg-d-purple {
-    background: linear-gradient(90deg, #3c0e60 30%, #381467 150%);
-  }
 }
 
 .flip-container {

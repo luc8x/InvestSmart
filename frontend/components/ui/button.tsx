@@ -18,7 +18,7 @@ const buttonVariants = cva(
         secondary:
           "bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80",
         dark:
-          "bg-transparent text-muted shadow-xs hover:bg-secondary/15 border-1 border-white",
+          "bg-transparent text-muted shadow-xs hover:bg-secondary/15 border-1 border-white cursor-pointer",
         ghost:
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         success:

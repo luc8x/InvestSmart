@@ -40,15 +40,14 @@ import { usePathname } from 'next/navigation'
 import { getUserFromCookies, logoutUser } from '@/utils/usersServices';
 
 export function AppSidebar({ collapsed }: { collapsed: boolean }) {
-  const [user, setUser] = useState(null);
+  const [userSidebar, setUserSidebar] = useState();
 
   useEffect(() => {
-    const userData:any = getUserFromCookies();
-    if (userData) {
-      setUser(userData);
+    const { user: userSidebarData, perfil: perfilSidebarData } = getUserFromCookies();
+    if (userSidebarData) {
+      setUserSidebar(userSidebarData.user);
     }
   }, []);
-
 
   const handleLogout = async () => {
     await logoutUser();
@@ -113,12 +112,12 @@ export function AppSidebar({ collapsed }: { collapsed: boolean }) {
                   <Avatar className="h-8 w-8 rounded-lg">
                     <AvatarImage src="/img/logo.png" alt="{}" />
                     <AvatarFallback className="rounded-lg">
-                      {getInitials(user?.nome_completo || '')}
+                      {getInitials(userSidebar?.nome_completo || '')}
                     </AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-medium">
-                      {user?.nome_completo}
+                      {userSidebar?.nome_completo}
                     </span>
                     <span className="truncate text-xs">
                       Usuário
@@ -138,12 +137,12 @@ export function AppSidebar({ collapsed }: { collapsed: boolean }) {
                     <Avatar className="h-8 w-8 rounded-lg">
                       <AvatarImage src="" alt="" />
                       <AvatarFallback className="rounded-lg">
-                        {getInitials(user?.nome_completo || '')}
+                        {getInitials(userSidebar?.nome_completo || '')}
                       </AvatarFallback>
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight">
-                      <span className="truncate font-medium">{user?.nome_completo}</span>
-                      <span className="truncate text-xs">{user?.email}</span>
+                      <span className="truncate font-medium">{userSidebar?.nome_completo}</span>
+                      <span className="truncate text-xs">{userSidebar?.email}</span>
                     </div>
                   </div>
                 </DropdownMenuLabel>
