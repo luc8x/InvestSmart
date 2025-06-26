@@ -5,7 +5,7 @@ export function Layout({ children, collapsed }: { children: ReactNode; collapsed
     return (
             <div
                 className={`min-h-screen ${collapsed ? 'sidebar-collapsed' : ''}`}
-                style={{ background: 'linear-gradient(135deg, #2C2C2C, var(--color-9))' }}
+                style={{ background: '#E3E9F0' }}
             >
                 {children}
             </div>

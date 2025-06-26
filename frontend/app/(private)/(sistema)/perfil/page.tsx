@@ -1,19 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useReducer, useMemo, useCallback } from "react";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
-import {
-    Camera,
-    UserRoundPen,
-    Lock,
-    BadgeInfo
-} from 'lucide-react';
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { debounce } from "lodash";
+import { Camera, UserRoundPen, Lock, BadgeInfo, ChevronLeft, Calendar as CalendarIcon } from 'lucide-react';
+import { toast } from "sonner";
+import { mask, unMask } from 'remask';
+
+// Componentes UI
 import {
     Command,
     CommandEmpty,
@@ -21,66 +15,29 @@ import {
     CommandInput,
     CommandItem,
     CommandList,
-} from "@/components/ui/command";
-import {
     Card,
     CardContent,
     CardDescription,
     CardHeader,
     CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import { Label } from "@/components/ui/label"
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { toast } from "sonner";
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover";
-import {
+    Input,
+    Label,
+    Button,
+    Skeleton,
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
-import { getUserFromCookies, updateUserInfo } from '@/utils/usersServices';
-import { mask, unMask } from 'remask';
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+    Separator
+} from "@/components/ui/index";
+import { cn } from "@/lib/utils";
 
-const estados = [
-    { uf: "AC", nome: "Acre" },
-    { uf: "AL", nome: "Alagoas" },
-    { uf: "AP", nome: "Amapá" },
-    { uf: "AM", nome: "Amazonas" },
-    { uf: "BA", nome: "Bahia" },
-    { uf: "CE", nome: "Ceará" },
-    { uf: "DF", nome: "Distrito Federal" },
-    { uf: "ES", nome: "Espírito Santo" },
-    { uf: "GO", nome: "Goiás" },
-    { uf: "MA", nome: "Maranhão" },
-    { uf: "MT", nome: "Mato Grosso" },
-    { uf: "MS", nome: "Mato Grosso do Sul" },
-    { uf: "MG", nome: "Minas Gerais" },
-    { uf: "PA", nome: "Pará" },
-    { uf: "PB", nome: "Paraíba" },
-    { uf: "PR", nome: "Paraná" },
-    { uf: "PE", nome: "Pernambuco" },
-    { uf: "PI", nome: "Piauí" },
-    { uf: "RJ", nome: "Rio de Janeiro" },
-    { uf: "RN", nome: "Rio Grande do Norte" },
-    { uf: "RS", nome: "Rio Grande do Sul" },
-    { uf: "RO", nome: "Rondônia" },
-    { uf: "RR", nome: "Roraima" },
-    { uf: "SC", nome: "Santa Catarina" },
-    { uf: "SP", nome: "São Paulo" },
-    { uf: "SE", nome: "Sergipe" },
-    { uf: "TO", nome: "Tocantins" }
-];
+// Serviços
+import { getUserFromCookies, updateUserInfo } from '@/utils/usersServices';
 
 interface User {
     id: number;
@@ -90,7 +47,7 @@ interface User {
     foto: string | null;
     fotoFile: File | null;
     telefone: string;
-    genero: string;
+    genero: 'M' | 'F' | '';
     logradouro: string;
     numero: string;
     complemento: string;
@@ -101,22 +58,35 @@ interface User {
     dataNascimento: Date | undefined;
 }
 
-export const parseDate = (date: string | null | undefined): Date | null => {
-    if (!date) return null;
-    const d = new Date(date);
-    return isNaN(d.getTime()) ? null : d;
-};
+interface Estado {
+    sigla: string;
+    nome: string;
+}
 
-export default function PerfilPage() {
+interface Cidade {
+    nome: string;
+}
 
-    const [formData, setFormData] = useState<User>({
+interface State {
+    user: User;
+    isLoading: boolean;
+    isLoadingEstados: boolean;
+    isLoadingCidades: boolean;
+    estados: Estado[];
+    cidades: Cidade[];
+    error: Error | null;
+}
+
+const initialState: State = {
+    user: {
+        id: 0,
         nomeCompleto: '',
         email: '',
         cpf: '',
-        foto: null as string | null,
-        fotoFile: null as File | null,
+        foto: null,
+        fotoFile: null,
         telefone: '',
-        genero: undefined as string | undefined,
+        genero: '',
         logradouro: '',
         numero: '',
         complemento: '',
@@ -124,144 +94,286 @@ export default function PerfilPage() {
         cidade: '',
         estado: '',
         cep: '',
-        dataNascimento: undefined as Date | undefined,
+        dataNascimento: undefined,
+    },
+    isLoading: true,
+    isLoadingEstados: true,
+    isLoadingCidades: false,
+    estados: [],
+    cidades: [],
+    error: null,
+};
+
+function reducer(state: State, action: any): State {
+    switch (action.type) {
+        case 'SET_USER':
+            return { ...state, user: { ...state.user, ...action.payload } };
+        case 'SET_LOADING':
+            return { ...state, isLoading: action.payload };
+        case 'SET_LOADING_ESTADOS':
+            return { ...state, isLoadingEstados: action.payload };
+        case 'SET_LOADING_CIDADES':
+            return { ...state, isLoadingCidades: action.payload };
+        case 'SET_ESTADOS':
+            return { ...state, estados: action.payload, isLoadingEstados: false };
+        case 'SET_CIDADES':
+            return { ...state, cidades: action.payload, isLoadingCidades: false };
+        case 'SET_ERROR':
+            return { ...state, error: action.payload };
+        default:
+            return state;
+    }
+}
+
+const parseDate = (date: string | null | undefined): Date | null => {
+    if (!date) return null;
+    const d = new Date(date);
+    return isNaN(d.getTime()) ? null : d;
+};
+
+const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = error => reject(error);
     });
+};
 
-    const [isLoading, setIsLoading] = useState(true);
+const LoadingSkeleton = ({ className = "" }: { className?: string }) => (
+    <Skeleton className={cn("h-9 w-full rounded-md border", className)} />
+);
 
-    useEffect(() => {
-        const { user: userData, perfil: perfilData } = getUserFromCookies();
-        let foto = localStorage.getItem('user_foto');
-        if (userData) {
-            try {
-                console.log(userData?.cpf)
-                setFormData({
-                    nomeCompleto: userData?.user.nome_completo,
-                    email: userData?.user.email,
-                    cpf: mask((userData?.user.cpf), ['999.999.999-99']),
-                    dataNascimento: userData?.user.data_nascimento ? parseDate(userData?.user.data_nascimento) : undefined,
-                    foto: foto || null,
-                    fotoFile: null,
-                    telefone: mask((perfilData?.telefone || ''), ['(99) 99999-9999']),
-                    genero: perfilData?.genero || '',
-                    logradouro: perfilData?.logradouro || '',
-                    numero: perfilData?.numero || '',
-                    complemento: perfilData?.complemento || '',
-                    bairro: perfilData?.bairro || '',
-                    cidade: perfilData?.cidade || '',
-                    estado: perfilData?.estado || '',
-                    cep: mask((perfilData?.cep || ''), ['99999-999']),
-                });
-            } catch (error) {
-                console.error('Erro ao carregar dados do usuário:', error);
-                toast.error('Erro ao carregar dados do usuário.');
-            }
-        }
-
-        setIsLoading(false);
-    }, []);
-
-    useEffect(() => {
-        return () => {
-            if (formData.foto) {
-                URL.revokeObjectURL(formData.foto);
-            }
-        };
-    }, [formData.foto]);
-
-
-    const handleChange = (field: string, value: any) => {
-        setFormData((prev) => ({
-            ...prev,
-            [field]: value,
-        }));
-    };
-
+const ProfilePhotoUpload = ({ 
+    photo, 
+    onChange,
+    isLoading 
+}: { 
+    photo: string | null, 
+    onChange: (file: File) => void,
+    isLoading: boolean
+}) => {
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (!file) return;
+        if (file) onChange(file);
+    };
+
+    return (
+        <div className="flex flex-col items-center gap-4">
+            {isLoading ? (
+                <Skeleton className="rounded-full w-70 h-70" />
+            ) : (
+                <img
+                    src={photo || "/img/avatar-placeholder.png"}
+                    alt="Foto de perfil"
+                    className="rounded-full w-70 h-70 object-cover border border-gray-300 shadow-lg p-1"
+                />
+            )}
+            <label htmlFor="foto-upload" className="cursor-pointer">
+                <Button variant="outline" disabled={isLoading}>
+                    <Camera className="mr-2 h-4 w-4" /> Alterar Foto
+                </Button>
+            </label>
+            <input
+                id="foto-upload"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileChange}
+            />
+        </div>
+    );
+};
+
+export default function PerfilPage() {
+    const [state, dispatch] = useReducer(reducer, initialState);
+
+    const fetchEstados = useCallback(async () => {
+        try {
+            const res = await fetch("https://servicodados.ibge.gov.br/api/v1/localidades/estados");
+            const data = await res.json();
+            const estadosOrdenados = data.sort((a: Estado, b: Estado) => a.nome.localeCompare(b.nome));
+            dispatch({ type: 'SET_ESTADOS', payload: estadosOrdenados });
+        } catch (err) {
+            dispatch({ type: 'SET_ERROR', payload: err as Error });
+            toast.error("Erro ao carregar estados");
+        }
+    }, []);
+
+    const fetchCidades = useCallback(async (estado: string) => {
+        if (!estado) {
+            dispatch({ type: 'SET_CIDADES', payload: [] });
+            return;
+        }
+
+        try {
+            dispatch({ type: 'SET_LOADING_CIDADES', payload: true });
+            const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${estado}/municipios`);
+            const data = await res.json();
+            dispatch({ type: 'SET_CIDADES', payload: data.map((c: any) => ({ nome: c.nome })) });
+        } catch (err) {
+            dispatch({ type: 'SET_ERROR', payload: err as Error });
+            toast.error("Erro ao carregar cidades");
+        }
+    }, []);
+
+    const fetchAddressByCEP = useMemo(
+        () => debounce(async (cep: string) => {
+            const cleanCEP = cep.replace(/\D/g, '');
+            if (cleanCEP.length !== 8) return;
+
+            try {
+                dispatch({ 
+                    type: 'SET_USER', 
+                    payload: {
+                        logradouro: '',
+                        bairro: '',
+                        cidade: '',
+                        estado: ''
+                    }
+                });
+
+                const response = await fetch(`https://viacep.com.br/ws/${cleanCEP}/json/`);
+                const data = await response.json();
+
+                if (data.erro) {
+                    toast.error('Nenhum endereço encontrado com o CEP informado.');
+                    return;
+                }
+
+                dispatch({ 
+                    type: 'SET_USER', 
+                    payload: {
+                        logradouro: data.logradouro || '',
+                        bairro: data.bairro || '',
+                        cidade: data.localidade || '',
+                        estado: data.uf || '',
+                    }
+                });
+            } catch (error) {
+                toast.error(`Erro ao buscar CEP: ${error}`);
+            }
+        }, 500),
+        []
+    );
+
+    useEffect(() => {
+        const loadUserData = () => {
+            try {
+                const { user: userData, perfil: perfilData } = getUserFromCookies();
+                const foto = localStorage.getItem('user_foto');
+
+                if (userData) {
+                    dispatch({
+                        type: 'SET_USER',
+                        payload: {
+                            nomeCompleto: userData.nome_completo,
+                            email: userData.email,
+                            cpf: mask((userData.cpf), ['999.999.999-99']),
+                            dataNascimento: userData.data_nascimento ? parseDate(userData.data_nascimento) : undefined,
+                            foto: foto || null,
+                            telefone: mask((perfilData?.telefone || ''), ['(99) 99999-9999']),
+                            genero: perfilData?.genero || '',
+                            logradouro: perfilData?.logradouro || '',
+                            numero: perfilData?.numero || '',
+                            complemento: perfilData?.complemento || '',
+                            bairro: perfilData?.bairro || '',
+                            cidade: perfilData?.cidade || '',
+                            estado: perfilData?.estado || '',
+                            cep: mask((perfilData?.cep || ''), ['99999-999']),
+                        }
+                    });
+                }
+            } catch (error) {
+                dispatch({ type: 'SET_ERROR', payload: error as Error });
+                toast.error('Erro ao carregar dados do usuário.');
+            } finally {
+                dispatch({ type: 'SET_LOADING', payload: false });
+            }
+        };
+
+        loadUserData();
+        fetchEstados();
+
+        return () => {
+            if (state.user.foto) {
+                URL.revokeObjectURL(state.user.foto);
+            }
+            fetchAddressByCEP.cancel();
+        };
+    }, [fetchAddressByCEP, fetchEstados]);
+
+    useEffect(() => {
+        if (state.user.estado) {
+            fetchCidades(state.user.estado);
+        }
+    }, [state.user.estado, fetchCidades]);
+
+    const handleChange = (field: keyof User, value: any) => {
+        dispatch({ 
+            type: 'SET_USER', 
+            payload: { [field]: value }
+        });
+    };
+
+    const handleFileChange = (file: File) => {
         const previewUrl = URL.createObjectURL(file);
         handleChange('fotoFile', file);
         handleChange('foto', previewUrl);
     };
 
-
-    const fileToBase64 = (file: File): Promise<string> => {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result as string);
-            reader.onerror = error => reject(error);
-        });
-    };
-
-    const fetchAddressByCEP = async (cep: string) => {
-        const cleanCEP = cep.replace(/\D/g, '');
-        if (cleanCEP.length !== 8) return null;
-
-        try {
-            const response = await fetch(`https://viacep.com.br/ws/${cleanCEP}/json/`);
-            const data = await response.json();
-
-            if (data.erro) {
-                toast.error(`Nenhum endereço encontrado com o CEP informado.`);
-                return null;
-            }
-
-            return {
-                logradouro: data.logradouro,
-                bairro: data.bairro,
-                cidade: data.localidade,
-                estado: data.uf,
-            };
-        } catch (error) {
-            toast.error(`Erro ao buscar CEP: ${error}`);
-            return null;
-        }
-    };
-
-    const handleCepChange = async (value: string) => {
+    const handleCepChange = (value: string) => {
         const maskedCep = mask(unMask(value), ['99999-999']);
         handleChange('cep', maskedCep);
-
+        
         if (unMask(value).length === 8) {
-
-            handleChange('logradouro', 'Carregando...');
-            handleChange('bairro', 'Carregando...');
-            handleChange('cidade', 'Carregando...');
-            handleChange('estado', 'Carregando...');
-
-            const address = await fetchAddressByCEP(maskedCep);
-
-            handleChange('logradouro', address?.logradouro || '');
-            handleChange('bairro', address?.bairro || '');
-            handleChange('cidade', address?.cidade || '');
-            handleChange('estado', address?.estado || '');
+            fetchAddressByCEP(maskedCep);
         }
+    };
+
+    const validateForm = (): string[] => {
+        const errors = [];
+        if (!state.user.email) errors.push('Email é obrigatório');
+        if (!state.user.telefone) errors.push('Telefone é obrigatório');
+        if (!state.user.genero) errors.push('Gênero é obrigatório');
+        return errors;
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        const errors = validateForm();
+        if (errors.length > 0) {
+            toast.error('Erros no formulário', {
+                description:(
+                    <span className="text-red-500">{errors.join(', ')}</span>
+                )
+            });
+            return;
+        }
+
         let fotoBase64 = null;
-        if (formData.fotoFile) {
-            fotoBase64 = await fileToBase64(formData.fotoFile);
+        if (state.user.fotoFile) {
+            try {
+                fotoBase64 = await fileToBase64(state.user.fotoFile);
+            } catch (error) {
+                toast.error('Erro ao processar a imagem');
+                return;
+            }
         }
 
         const submitData = new FormData();
-        submitData.append('nome_completo', formData.nomeCompleto);
-        submitData.append('email', formData.email);
-        submitData.append('cpf', formData.cpf);
-        submitData.append('data_nascimento', formData.dataNascimento ? formData.dataNascimento.toISOString().split('T')[0] : '');
-        submitData.append('telefone', formData.telefone);
-        submitData.append('genero', formData.genero);
-        submitData.append('logradouro', formData.logradouro);
-        submitData.append('numero', unMask(formData.numero));
-        submitData.append('complemento', formData.complemento);
-        submitData.append('bairro', formData.bairro);
-        submitData.append('cidade', formData.cidade);
-        submitData.append('estado', formData.estado);
-        submitData.append('cep', unMask(formData.cep));
+        submitData.append('email', state.user.email);
+        submitData.append('telefone', unMask(state.user.telefone));
+        submitData.append('genero', state.user.genero);
+        submitData.append('logradouro', state.user.logradouro);
+        submitData.append('numero', unMask(state.user.numero));
+        submitData.append('complemento', state.user.complemento);
+        submitData.append('bairro', state.user.bairro);
+        submitData.append('cidade', state.user.cidade);
+        submitData.append('estado', state.user.estado);
+        submitData.append('cep', unMask(state.user.cep));
+
         if (fotoBase64) {
             submitData.append('foto', fotoBase64);
         }
@@ -269,32 +381,47 @@ export default function PerfilPage() {
         try {
             await updateUserInfo(submitData);
             toast.success('Perfil atualizado com sucesso!');
-        } catch (error:any) {
-            console.log(error)
-           toast.error('Não foi possivel atualizar o perfil.', {
-                description: (
-                    <span className="text-sm text-red-700">
-                        Corrija os campos obrigatórios e tente novamente.
-                    </span>
-                )
+        } catch (error: any) {
+            dispatch({ type: 'SET_ERROR', payload: error });
+            toast.error('Não foi possível atualizar o perfil.', {
+                description: 'Corrija os campos obrigatórios e tente novamente.'
             });
         }
     };
 
+    if (state.error) {
+        return (
+            <div className="flex flex-col items-center justify-center h-full">
+                <h2 className="text-2xl font-bold text-red-600">Ocorreu um erro</h2>
+                <p className="text-muted-foreground">{state.error.message}</p>
+                <Button 
+                    className="mt-4" 
+                    onClick={() => window.location.reload()}
+                >
+                    Recarregar Página
+                </Button>
+            </div>
+        );
+    }
+
     return (
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+        <div className="flex flex-1 flex-col gap-4">
             <div className="grid auto-rows-min gap-4 md:grid-cols-1">
-                <Card className="text-white shadow-lg" style={{ background: '#222' }}>
+                <Card className="text-black shadow-lg bg-white">
                     <CardHeader className="flex flex-row items-start justify-between">
                         <div>
-                            <CardTitle className="text-lg">Olá, {formData.nomeCompleto ? formData.nomeCompleto : 'Usuário'}</CardTitle>
-                            <CardDescription>Sempre mantenha suas informações atualizadas!</CardDescription>
+                            <CardTitle className="text-lg">
+                                Olá, {state.user.nomeCompleto || 'Usuário'}
+                            </CardTitle>
+                            <CardDescription>
+                                Sempre mantenha suas informações atualizadas!
+                            </CardDescription>
                         </div>
                     </CardHeader>
                     <hr />
                     <CardContent className="flex flex-col gap-8">
                         <div>
-                            <h2 className="text-3xl font-bold tracking-tight">
+                            <h2 className="text-3xl font-semibold tracking-tight">
                                 Dados do Usuário
                             </h2>
                             <p className="text-muted-foreground text-sm">
@@ -303,171 +430,127 @@ export default function PerfilPage() {
                         </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                            <div className="flex flex-col items-center gap-4">
-                                <img
-                                    src={formData.foto || "/img/avatar-placeholder.png"}
-                                    alt="Foto de perfil"
-                                    className="rounded-xl w-100 h-100 object-cover border"
-                                />
-
-                                <label htmlFor="foto-upload" className="cursor-pointer">
-                                    <Button variant="secondary" asChild disabled={isLoading}>
-                                        <span><Camera /> Alterar Foto</span>
-                                    </Button>
-                                </label>
-
-                                <input
-                                    id="foto-upload"
-                                    type="file"
-                                    accept="image/*"
-                                    className="hidden"
-                                    onChange={handleFileChange}
-                                />
-                            </div>
+                            <ProfilePhotoUpload 
+                                photo={state.user.foto} 
+                                onChange={handleFileChange}
+                                isLoading={state.isLoading}
+                            />
 
                             <form className="flex flex-col gap-6 lg:col-span-2" onSubmit={handleSubmit}>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {/* Nome Completo */}
                                     <div className="flex flex-col gap-2">
                                         <Label htmlFor="nome_completo">Nome Completo: </Label>
-                                        {isLoading ? (
-                                            <Skeleton className="h-9 w-full rounded-md bg-transparent border-1 border-white" placeholder="Carregando" />
+                                        {state.isLoading ? (
+                                            <LoadingSkeleton />
                                         ) : (
                                             <div className="relative">
                                                 <Input
                                                     id="nome_completo"
                                                     placeholder="Digite seu nome"
                                                     disabled
-                                                    value={formData.nomeCompleto}
+                                                    value={state.user.nomeCompleto}
                                                     className="pr-10"
                                                 />
-                                                <Lock size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                                                <Lock size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400/60" />
                                             </div>
                                         )}
                                     </div>
 
+                                    {/* Email */}
                                     <div className="flex flex-col gap-2">
-                                        <Label htmlFor="email">Email:
-                                            <Tooltip>
-                                                <TooltipTrigger className="text-red-400">*</TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>Campo Obrigatório</p>
-                                                </TooltipContent>
-                                            </Tooltip>
+                                        <Label htmlFor="email">
+                                            Email: <span className="text-red-400" title="Campo Obrigatório">*</span>
                                         </Label>
-                                        {isLoading ? (
-                                            <Skeleton className="h-9 w-full rounded-md bg-transparent border-1 border-white" placeholder="Carregando" />
+                                        {state.isLoading ? (
+                                            <LoadingSkeleton />
                                         ) : (
                                             <Input
                                                 id="email"
                                                 type="email"
                                                 placeholder="Digite seu email"
-                                                disabled={isLoading}
-                                                value={formData.email}
+                                                disabled={state.isLoading}
+                                                value={state.user.email}
                                                 onChange={(e) => handleChange('email', e.target.value)}
                                             />
                                         )}
                                     </div>
 
+                                    {/* CPF */}
                                     <div className="flex flex-col gap-2">
                                         <Label htmlFor="cpf">CPF: </Label>
-                                        {isLoading ? (
-                                            <Skeleton className="h-9 w-full rounded-md bg-transparent border-1 border-white" placeholder="Carregando" />
+                                        {state.isLoading ? (
+                                            <LoadingSkeleton />
                                         ) : (
                                             <div className="relative">
                                                 <Input
                                                     id="cpf"
                                                     placeholder="Digite seu CPF"
                                                     disabled
-                                                    value={formData.cpf}
+                                                    value={state.user.cpf}
                                                     className="pr-10"
                                                 />
-                                                <Lock size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                                                <Lock size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400/60" />
                                             </div>
                                         )}
                                     </div>
 
+                                    {/* Data de Nascimento */}
                                     <div className="flex flex-col gap-2">
-                                        <Label htmlFor="data_nascimento">Data de Nascimento:
-                                            <Tooltip>
-                                                <TooltipTrigger className="text-red-400">*</TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>Campo Obrigatório</p>
-                                                </TooltipContent>
-                                            </Tooltip>
+                                        <Label htmlFor="data_nascimento">
+                                            Data de Nascimento:<span className="text-red-400" title="Campo Obrigatório">*</span>
                                         </Label>
-                                        {isLoading ? (
-                                            <Skeleton className="h-9 w-full rounded-md bg-transparent border-1 border-white" placeholder="Carregando" />
+                                        {state.isLoading ? (
+                                            <LoadingSkeleton />
                                         ) : (
-                                            <Popover>
-                                                <PopoverTrigger asChild>
-                                                    <Button
-                                                        id="data_nascimento"
-                                                        variant="dark"
-                                                        disabled={isLoading}
-                                                        className={cn(
-                                                            "justify-start text-left font-normal",
-                                                            !formData.dataNascimento && "text-muted-foreground"
-                                                        )}
-                                                    >
-                                                        <CalendarIcon className="mr-2 h-4 w-4" />
-                                                        {formData.dataNascimento
-                                                            ? format(formData.dataNascimento, 'dd/MM/yyyy')
-                                                            : 'Selecione uma data'}
-                                                    </Button>
-                                                </PopoverTrigger>
-                                                <PopoverContent className="w-auto p-0" align="start">
-                                                    <Calendar
-                                                        mode="single"
-                                                        buttonVariant={"secondary"}
-                                                        selected={formData.dataNascimento}
-                                                        onSelect={(e) => handleChange('dataNascimento', e)}
-                                                        captionLayout="dropdown"
-                                                        fromYear={1960}
-                                                        toYear={new Date().getFullYear()}
-                                                    />
-                                                </PopoverContent>
-                                            </Popover>
+                                            <Button
+                                                id="data_nascimento"
+                                                variant="outline"
+                                                disabled={true}
+                                                className={cn(
+                                                    "justify-start text-left font-normal flex justify-between",
+                                                    !state.user.dataNascimento && "text-muted-foreground"
+                                                )}
+                                            >   
+                                                <div className="flex align-center">
+                                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                                    {state.user.dataNascimento ? format(state.user.dataNascimento, 'dd/MM/yyyy') : 'Selecione uma data'}
+                                                </div>
+                                                <Lock size={15} className="text-gray-400" />
+                                            </Button>
                                         )}
                                     </div>
 
+                                    {/* Telefone */}
                                     <div className="flex flex-col gap-2">
-                                        <Label htmlFor="telefone">Telefone:
-                                            <Tooltip>
-                                                <TooltipTrigger className="text-red-400">*</TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>Campo Obrigatório</p>
-                                                </TooltipContent>
-                                            </Tooltip>
+                                        <Label htmlFor="telefone">
+                                            Telefone: <span className="text-red-400" title="Campo Obrigatório">*</span>
                                         </Label>
-                                        {isLoading ? (
-                                            <Skeleton className="h-9 w-full rounded-md bg-transparent border-1 border-white" placeholder="Carregando" />
+                                        {state.isLoading ? (
+                                            <LoadingSkeleton />
                                         ) : (
                                             <Input
                                                 id="telefone"
                                                 placeholder="(XX) XXXXX-XXXX"
-                                                disabled={isLoading}
-                                                value={formData.telefone}
+                                                disabled={state.isLoading}
+                                                value={state.user.telefone}
                                                 onChange={(e) => handleChange('telefone', mask(e.target.value, ['(99) 99999-9999']))}
                                             />
                                         )}
                                     </div>
 
+                                    {/* Gênero */}
                                     <div className="flex flex-col gap-2">
-                                        <Label htmlFor="genero">Gênero:
-                                            <Tooltip>
-                                                <TooltipTrigger className="text-red-400">*</TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>Campo Obrigatório</p>
-                                                </TooltipContent>
-                                            </Tooltip>
+                                        <Label htmlFor="genero">
+                                            Gênero: <span className="text-red-400" title="Campo Obrigatório">*</span>
                                         </Label>
-                                        {isLoading ? (
-                                            <Skeleton className="h-9 w-full rounded-md bg-transparent border-1 border-white" placeholder="Carregando" />
+                                        {state.isLoading ? (
+                                            <LoadingSkeleton />
                                         ) : (
                                             <Select
-                                                value={formData.genero}
-                                                onValueChange={(e) => handleChange('genero', e || formData.genero)}
-                                                disabled={isLoading}
+                                                value={state.user.genero}
+                                                onValueChange={(value) => handleChange('genero', value)}
+                                                disabled={state.isLoading}
                                             >
                                                 <SelectTrigger className="w-full" id="genero">
                                                     <SelectValue placeholder="Selecione seu gênero" />
@@ -484,146 +567,116 @@ export default function PerfilPage() {
                                 <Separator />
 
                                 <h3 className="text-xl font-semibold items-center flex gap-2">
-                                    Endereço
-                                    <Tooltip>
-                                        <TooltipTrigger className="text-secondary"><BadgeInfo size={15} /></TooltipTrigger>
-                                        <TooltipContent>
-                                            <p>Campos Opcionais</p>
-                                        </TooltipContent>
-                                    </Tooltip>
-
+                                    Endereço <span className="text-black" title="Campos Opcionais"><BadgeInfo size={15} /></span>
                                 </h3>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {/* CEP */}
                                     <div className="flex flex-col gap-2">
                                         <Label htmlFor="cep">CEP:</Label>
-                                        {isLoading ? (
-                                            <Skeleton className="h-9 w-full rounded-md bg-transparent border-1 border-white" placeholder="Carregando" />
+                                        {state.isLoading ? (
+                                            <LoadingSkeleton />
                                         ) : (
                                             <div className="flex flex-col gap-1">
                                                 <Input
                                                     id="cep"
                                                     placeholder="Digite seu CEP"
-                                                    value={formData.cep}
+                                                    value={state.user.cep}
                                                     onChange={(e) => handleCepChange(e.target.value)}
                                                 />
-                                                <a
-                                                    href="https://www.buscacep.correios.com.br/"
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="text-sm text-gray-500 hover:underline"
-                                                >
-                                                    Não sabe seu CEP?
-                                                </a>
+                                                <div>
+                                                    <a
+                                                        href="https://www.buscacep.correios.com.br/"
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-sm text-gray-500 hover:underline"
+                                                    >
+                                                        Não sabe seu CEP?
+                                                    </a>
+                                                </div>
                                             </div>
                                         )}
                                     </div>
 
+                                    {/* Logradouro */}
                                     <div className="flex flex-col gap-2">
                                         <Label htmlFor="logradouro">Logradouro:</Label>
-                                        {isLoading ? (
-                                            <Skeleton className="h-9 w-full rounded-md bg-transparent border-1 border-white" placeholder="Carregando" />
+                                        {state.isLoading ? (
+                                            <LoadingSkeleton />
                                         ) : (
                                             <Input
                                                 id="logradouro"
                                                 placeholder="Rua, Avenida, etc"
-                                                disabled={isLoading}
-                                                value={formData.logradouro}
+                                                disabled={state.isLoading}
+                                                value={state.user.logradouro}
                                                 onChange={(e) => handleChange('logradouro', e.target.value)}
                                             />
                                         )}
                                     </div>
 
+                                    {/* Número */}
                                     <div className="flex flex-col gap-2">
                                         <Label htmlFor="numero">Número:</Label>
-                                        {isLoading ? (
-                                            <Skeleton className="h-9 w-full rounded-md bg-transparent border-1 border-white" placeholder="Carregando" />
+                                        {state.isLoading ? (
+                                            <LoadingSkeleton />
                                         ) : (
                                             <Input
                                                 id="numero"
                                                 placeholder="Número"
-                                                disabled={isLoading}
-                                                // maxLength={10}
-                                                value={formData.numero}
-                                                onChange={(e) => handleChange('numero', e.target.value.toUpperCase())}
+                                                disabled={state.isLoading}
+                                                value={state.user.numero}
+                                                onChange={(e) => handleChange('numero', e.target.value)}
                                             />
                                         )}
                                     </div>
 
+                                    {/* Complemento */}
                                     <div className="flex flex-col gap-2">
                                         <Label htmlFor="complemento">Complemento:</Label>
-                                        {isLoading ? (
-                                            <Skeleton className="h-9 w-full rounded-md bg-transparent border-1 border-white" placeholder="Carregando" />
+                                        {state.isLoading ? (
+                                            <LoadingSkeleton />
                                         ) : (
                                             <Input
                                                 id="complemento"
                                                 placeholder="Apartamento, bloco, etc"
-                                                disabled={isLoading}
-                                                value={formData.complemento}
+                                                disabled={state.isLoading}
+                                                value={state.user.complemento}
                                                 onChange={(e) => handleChange('complemento', e.target.value)}
                                             />
                                         )}
                                     </div>
 
-                                    <div className="flex flex-col gap-2">
-                                        <Label htmlFor="bairro">Bairro:</Label>
-                                        {isLoading ? (
-                                            <Skeleton className="h-9 w-full rounded-md bg-transparent border-1 border-white" placeholder="Carregando" />
-                                        ) : (
-                                            <Input
-                                                id="bairro"
-                                                placeholder="Digite o bairro"
-                                                disabled={isLoading}
-                                                value={formData.bairro}
-                                                onChange={(e) => handleChange('bairro', e.target.value)}
-                                            />
-                                        )}
-                                    </div>
-
-                                    <div className="flex flex-col gap-2">
-                                        <Label htmlFor="cidade">Cidade:</Label>
-                                        {isLoading ? (
-                                            <Skeleton className="h-9 w-full rounded-md bg-transparent border-1 border-white" placeholder="Carregando" />
-                                        ) : (
-                                            <Input
-                                                id="cidade"
-                                                placeholder="Digite a cidade"
-                                                disabled={isLoading}
-                                                value={formData.cidade}
-                                                onChange={(e) => handleChange('cidade', e.target.value)}
-                                            />
-                                        )}
-                                    </div>
-
+                                    {/* Estado */}
                                     <div className="flex flex-col gap-2">
                                         <Label htmlFor="estado">Estado:</Label>
-                                        {isLoading ? (
-                                            <Skeleton className="h-9 w-full rounded-md bg-transparent border-1 border-white" placeholder="Carregando" />
+                                        {state.isLoadingEstados ? (
+                                            <LoadingSkeleton />
                                         ) : (
                                             <Popover>
                                                 <PopoverTrigger asChild>
-                                                    <Button
-                                                        variant="dark"
-                                                        role="combobox"
-                                                        className="w-full justify-between"
+                                                    <Button 
+                                                        variant="outline" 
+                                                        role="combobox" 
+                                                        className="w-full justify-between" 
+                                                        id="estado"
+                                                        disabled={state.isLoading}
                                                     >
-                                                        {formData.estado
-                                                            ? estados.find((e) => e.uf === formData.estado)?.nome
+                                                        {state.user.estado
+                                                            ? state.estados.find((e) => e.sigla === state.user.estado)?.nome
                                                             : "Selecione o Estado"}
                                                     </Button>
                                                 </PopoverTrigger>
-
-                                                <PopoverContent className="w-[200px] p-0">
+                                                <PopoverContent className="w-[300px] p-0">
                                                     <Command>
                                                         <CommandInput placeholder="Procurar Estado..." className="h-9" />
                                                         <CommandList>
                                                             <CommandEmpty>Nenhum estado encontrado.</CommandEmpty>
                                                             <CommandGroup>
-                                                                {estados.map((estado) => (
+                                                                {state.estados.map((estado) => (
                                                                     <CommandItem
-                                                                        key={estado.uf}
-                                                                        value={estado.uf}
-                                                                        onSelect={() => handleChange('estado', estado.uf)}
+                                                                        key={estado.sigla}
+                                                                        value={estado.sigla}
+                                                                        onSelect={() => handleChange("estado", estado.sigla)}
                                                                     >
                                                                         {estado.nome}
                                                                     </CommandItem>
@@ -635,11 +688,80 @@ export default function PerfilPage() {
                                             </Popover>
                                         )}
                                     </div>
+
+                                    {/* Cidade */}
+                                    <div className="flex flex-col gap-2">
+                                        <Label htmlFor="cidade">Cidade:</Label>
+                                        {state.isLoadingCidades ? (
+                                            <LoadingSkeleton />
+                                        ) : (
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <Button 
+                                                        id="cidade"
+                                                        variant="outline"
+                                                        role="combobox"
+                                                        className="w-full justify-between"
+                                                        disabled={!state.user.estado || state.isLoading}
+                                                    >
+                                                        {state.user.cidade || "Selecione a Cidade"}
+                                                    </Button>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-[300px] p-0">
+                                                    <Command>
+                                                        <CommandInput placeholder="Procurar Cidade..." className="h-9"  />
+                                                        <CommandList>
+                                                            <CommandEmpty>Nenhuma cidade encontrada.</CommandEmpty>
+                                                            <CommandGroup>
+                                                                {state.cidades.map((cidade) => (
+                                                                    <CommandItem
+                                                                        key={cidade.nome}
+                                                                        value={cidade.nome}
+                                                                        onSelect={() => handleChange("cidade", cidade.nome)}
+                                                                    >
+                                                                        {cidade.nome}
+                                                                    </CommandItem>
+                                                                ))}
+                                                            </CommandGroup>
+                                                        </CommandList>
+                                                    </Command>
+                                                </PopoverContent>
+                                            </Popover>
+                                        )}
+                                    </div>
+
+                                    {/* Bairro */}
+                                    <div className="flex flex-col gap-2">
+                                        <Label htmlFor="bairro">Bairro:</Label>
+                                        {state.isLoading ? (
+                                            <LoadingSkeleton />
+                                        ) : (
+                                            <Input
+                                                id="bairro"
+                                                placeholder="Digite o bairro"
+                                                disabled={state.isLoading}
+                                                value={state.user.bairro}
+                                                onChange={(e) => handleChange('bairro', e.target.value)}
+                                            />
+                                        )}
+                                    </div>
                                 </div>
 
-                                <div className="flex justify-end">
-                                    <Button type="submit" variant={"dark"} disabled={isLoading}>
-                                        <UserRoundPen /> Salvar Alterações
+                                <div className="flex justify-end gap-2">
+                                    <Button 
+                                        type="button" 
+                                        variant="secondary" 
+                                        onClick={() => window.history.back()}
+                                        disabled={state.isLoading}
+                                    >
+                                        <ChevronLeft size={15} className="mr-2" /> Voltar
+                                    </Button>
+                                    <Button 
+                                        type="submit" 
+                                        variant="outline" 
+                                        disabled={state.isLoading}
+                                    >
+                                        <UserRoundPen size={15} className="mr-2" /> Salvar Alterações
                                     </Button>
                                 </div>
                             </form>
@@ -648,5 +770,5 @@ export default function PerfilPage() {
                 </Card>
             </div>
         </div>
-    )
+    );
 }

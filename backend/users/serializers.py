@@ -40,5 +40,4 @@ class LoginUserSerializer(serializers.Serializer):
         if not user or not user.is_active:
             raise serializers.ValidationError("Credenciais inválidas.")
         data['user'] = user
-        print('data',data)
         return data

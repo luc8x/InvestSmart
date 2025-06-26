@@ -78,7 +78,7 @@ export const updateUserInfo = async (data: FormData) => {
       res.data.perfil.foto = null;
     }
 
-    nookies.set(null, 'user_info', JSON.stringify(res.data), {
+    nookies.set(null, 'user_info', JSON.stringify(res.data.user), {
       maxAge: 60 * 60 * 24,
       path: '/',
     });
