@@ -2,11 +2,22 @@ export { Button } from "./button";
 export { Input } from "./input";
 export { Label } from "./label";
 export { Skeleton } from "./skeleton";
-export { Card } from "./card";
-export { CardContent } from "./card";
-export { CardDescription } from "./card";
-export { CardHeader } from "./card";
-export { CardTitle } from "./card";
+export {
+    Card,
+    CardAction,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "./card";
+export {
+    Carousel,
+    CarouselContent,
+    CarouselItem,
+    CarouselNext,
+    CarouselPrevious,
+} from "./carousel";
 export { Command } from "./command";
 export { CommandEmpty } from "./command";
 export { CommandGroup } from "./command";

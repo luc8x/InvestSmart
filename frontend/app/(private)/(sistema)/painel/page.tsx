@@ -2,8 +2,8 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { BarChart, CreditCard, DollarSign, TrendingUp } from "lucide-react"
-import { LineChart } from "@/components/LineChart"
-import { RecentTransactions } from "@/components/RecentTransactions"
+import { LineChart } from "@/components/lineChart"
+import { RecentTransactions } from "@/components/recenteTransacoes"
 import { Separator } from "@/components/ui/separator"
 
 export default function PainelPage() {
