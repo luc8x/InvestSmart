@@ -8,10 +8,12 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/index";
-import { columns, Pagamento } from "@/components/ListBancos/colunas"
-import { DataTable } from "@/components/ListBancos/data-table"
+import { FormInstituicaoFinanceira } from '@/components/Bancos/Form'
+import { Bancos, columns } from "@/components/Bancos/ListBancos/colunas"
+import { DataTable } from "@/components/Bancos/ListBancos/data-table"
 import Image from "next/image";
 import { DollarSign, ChevronsUpDown, Landmark } from 'lucide-react';
+import { listarBancos } from '@/utils/bancosServicos';
 
 const contas = [
   {
@@ -52,17 +54,15 @@ const contas = [
   },
 ];
 
-function getData(): Promise<Pagamento[]> {
-  // Fetch data from your API here.
-  return [
-    {
-      id: "728ed52f",
-      amount: 100,
-      status: "pending",
-      email: "m@example.com",
-    },
-    // ...
-  ]
+async function getData(): Promise<Bancos[]> {
+  const response = await listarBancos();
+  console.log(response)
+  if (!response.ok) {
+    throw new Error('Erro ao buscar bancos');
+  }
+
+  const data = await response.json();
+  return data as Bancos[];
 }
 
 
@@ -144,24 +144,12 @@ export default function BancosPage() {
               <DataTable columns={columns} data={data} />
             </CardContent>
           </Card>
-          <Card className={`bg-white text-black/90 rounded-2xl p-4 px-1 shadow-sm`}>
-            <CardHeader className="flex items-center justify-between pb-5">
-              <div className="font-semibold tracking-wide text-base text-black/60">
-                Saldo Atual
-              </div>
-              <DollarSign />
-            </CardHeader>
-
-            <CardContent className="space-y-2">
-              <div className="text-3xl font-bold tracking-tight mb-3">
-                R$ 12.300,00
-              </div>
-              <p className="text-sm text-black/80 flex items-center gap-1 m-0">
-                <ChevronsUpDown size={14} />
-                Atualizado Hoje
-              </p>
-            </CardContent>
-          </Card>
+          <div>
+            <div className="flex items-center p-4 justify-between font-semibold tracking-wide text-base border bg-white text-black/90 rounded-2xl shadow-sm">
+              Instituição Financeira
+                <FormInstituicaoFinanceira/>
+            </div>
+          </div>
         </div>
       </div>
     </div>

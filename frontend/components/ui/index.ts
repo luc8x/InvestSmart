@@ -3,6 +3,16 @@ export { Input } from "./input";
 export { Label } from "./label";
 export { Skeleton } from "./skeleton";
 export {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose,
+} from "./dialog";
+export {
     Card,
     CardAction,
     CardContent,
