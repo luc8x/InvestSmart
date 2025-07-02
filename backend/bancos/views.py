@@ -25,9 +25,17 @@ class BancoCadastrarView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        cnpj = request.data.get("cnpj")
+        banco = Banco.objects.filter(cnpj=cnpj).first()
+
+        if banco:
+            UsuarioBanco.objects.get_or_create(user=request.user, banco=banco)
+            return Response(BancoSerializer(banco).data, status=status.HTTP_200_OK)
+
         serializer = BancoSerializer(data=request.data)
         if serializer.is_valid():
             banco = serializer.save()
+            UsuarioBanco.objects.create(user=request.user, banco=banco)
             return Response(BancoSerializer(banco).data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

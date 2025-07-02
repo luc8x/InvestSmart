@@ -11,3 +11,7 @@ export const listarBancos = async () => {
   const res = await bancosAPI.get('');
   return res.data;
 };
+
+export const updateBanco = async (TestTube, teste) => {
+  const res = await bancosAPI.post('cadastrar/', teste);
+}
