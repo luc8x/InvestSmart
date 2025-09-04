@@ -35,7 +35,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     
     def save(self, *args, **kwargs):
         self.full_clean()
-        # Normaliza o CPF removendo pontos e traços
         if self.cpf:
             self.cpf = re.sub(r'[^0-9]', '', self.cpf)
         super().save(*args, **kwargs)
