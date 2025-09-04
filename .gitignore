@@ -81,3 +81,6 @@ Desktop.ini
 
 # arquivos de logs do backend
 /backend/*.log
+backend/logs/*
+backend/backend/settings_dev.py
+backend/backend/settings_prod.py

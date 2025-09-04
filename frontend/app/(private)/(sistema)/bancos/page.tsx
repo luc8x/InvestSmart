@@ -1,22 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  Button,
-} from "@/components/ui/index";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
+import { Button } from "@/components/ui/button";
 import { BancoCreateDialog } from '@/components/Bancos/BancoCreateDialog'
 import { Banco, UsuarioBanco, columns } from "@/components/Bancos/ListBancos/colunas"
 import { DataTable } from "@/components/Bancos/ListBancos/data-table"
 import Image from "next/image";
-import { DollarSign, ChevronsUpDown, Landmark } from 'lucide-react';
+import { DollarSign, ChevronsUpDown } from 'lucide-react';
 import { listarBancos } from '@/utils/bancosServicos';
-import { Pie, PieChart } from "recharts";
 
 const contas = [
   {
@@ -69,13 +62,13 @@ async function getData(): Promise<Banco[]> {
   return data.map((item) => ({
     ...item.banco,
     tipo: item.banco.tipo.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-    cnpj: item.banco.cnpj.replace(/\D/g, '').replace(/^(\d{2})(\d)/, '$1.$2').replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3').replace(/\.(\d{3})(\d)/, '.$1/$2').replace(/(\d{4})(\d)/, '$1-$2')
+    // cnpj: item.banco.cnpj.replace(/\D/g, '').replace(/^(\d{2})(\d)/, '$1.$2').replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3').replace(/\.(\d{3})(\d)/, '.$1/$2').replace(/(\d{4})(\d)/, '$1-$2')
+    cnpj: item.banco.tipo.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
   }));
 }
 
 export default function BancosPage() {
   const [data, setData] = useState<Banco[]>([]);
-  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     getData().then(setData).catch(console.error);

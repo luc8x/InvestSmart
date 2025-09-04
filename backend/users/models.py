@@ -1,13 +1,21 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.core.exceptions import ValidationError
 from datetime import timezone
+import re
 from .managers import CustomUserManager
 
+def validate_cpf(value):
+    """Valida se o CPF está no formato correto"""
+    cpf = re.sub(r'[^0-9]', '', value)
+    if len(cpf) != 11 or cpf == cpf[0] * 11:
+        raise ValidationError('CPF inválido.')
+
 class CustomUser(AbstractBaseUser, PermissionsMixin):
-    nome_completo = models.CharField(max_length=250)
-    cpf = models.CharField(max_length=14, unique=True)
-    email = models.EmailField(unique=True)
-    data_nascimento = models.DateField()
+    nome_completo = models.CharField(max_length=250, help_text="Nome completo do usuário")
+    cpf = models.CharField(max_length=14, unique=True, validators=[validate_cpf], help_text="CPF no formato 000.000.000-00")
+    email = models.EmailField(unique=True, help_text="Email único do usuário")
+    data_nascimento = models.DateField(help_text="Data de nascimento")
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     
@@ -16,8 +24,24 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'cpf'
     REQUIRED_FIELDS = ['email', 'data_nascimento', 'nome_completo']
     
+    def clean(self):
+        super().clean()
+        if self.data_nascimento:
+            from datetime import date
+            today = date.today()
+            age = today.year - self.data_nascimento.year - ((today.month, today.day) < (self.data_nascimento.month, self.data_nascimento.day))
+            if age < 18:
+                raise ValidationError({'data_nascimento': 'Usuário deve ter pelo menos 18 anos.'})
+    
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        # Normaliza o CPF removendo pontos e traços
+        if self.cpf:
+            self.cpf = re.sub(r'[^0-9]', '', self.cpf)
+        super().save(*args, **kwargs)
+    
     def __str__(self):
-        return self.cpf
+        return f"{self.nome_completo} ({self.cpf})"
     
     def calcular_idade(self):
         hoje = timezone.now().date()

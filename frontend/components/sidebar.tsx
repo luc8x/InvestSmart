@@ -31,7 +31,7 @@ export function AppSidebar({ collapsed }: { collapsed: boolean }) {
         className={`flex items-center gap-3 rounded-md transition-colors hover:bg-muted ${collapsed ? "ml-2.5 p-0" : "ml-1.5 py-1 px-1"}`}>
         <div className="flex items-center justify-center w-9 h-9 rounded-md text-sidebar-primary-foreground">
           <Image
-            src="/img/logo_2.webp"
+            src="/img/logo_black.png"
             alt="Logo"
             width={24}
             height={24}

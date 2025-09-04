@@ -9,10 +9,17 @@ export const createAPI = (baseURL: string) => {
 
   api.interceptors.request.use(
     (config) => {
-      const { access_token } = nookies.get(null, 'access_token');
-      if (access_token) {
-        config.headers.Authorization = `Bearer ${access_token}`;
-        console.log(access_token)
+      const publicEndpoints = ['register/', 'login/'];
+      const isPublicEndpoint = publicEndpoints.some(endpoint => 
+        config.url?.includes(endpoint)
+      ) || (config.method === 'post' && (config.url === '' || config.url === '/'));
+      if (!isPublicEndpoint) {
+        const { access_token } = nookies.get(null, 'access_token');
+        if (access_token) {
+          config.headers.Authorization = `Bearer ${access_token}`;
+        }
+      } else {
+        delete config.headers.Authorization;
       }
       return config;
     },

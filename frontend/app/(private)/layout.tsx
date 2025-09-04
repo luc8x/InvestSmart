@@ -47,13 +47,13 @@ export default function PrivateLayout({ children }: { children: React.ReactNode 
   const [foto, setFoto] = useState();
   const [user, setUser] = useState();
   
-  useEffect(() => {
-      setFoto(localStorage.getItem("user_foto"))
-      const { user: userData, perfil: p } = getUserFromCookies();
-      if (userData) {
-        setUser(userData);
-      }
-    }, []);
+  // useEffect(() => {
+  //     setFoto(localStorage.getItem("user_foto"))
+  //     const { user: userData, perfil: p } = getUserFromCookies();
+  //     if (userData) {
+  //       setUser(userData);
+  //     }
+  //   }, []);
 
   const handleLogout = async () => {
     await logoutUser();
@@ -142,7 +142,7 @@ export default function PrivateLayout({ children }: { children: React.ReactNode 
                           className="h-8 w-8 rounded-full border border-gray-300"
                         />
                         <AvatarFallback className="rounded-lg">
-                          {getInitials(user?.nome_completo || '')}
+                          {/* {getInitials(user?.nome_completo || '')} */}
                         </AvatarFallback>
                         </Avatar>
                     </DropdownMenuTrigger>
@@ -160,12 +160,12 @@ export default function PrivateLayout({ children }: { children: React.ReactNode 
                               className="h-8 w-8 rounded-full border border-gray-300"
                             />
                             <AvatarFallback className="rounded-lg">
-                              {getInitials(user?.nome_completo || '')}
+                              {/* {getInitials(user?.nome_completo || '')} */}
                             </AvatarFallback>
                           </Avatar>
                           <div className="grid flex-1 text-left text-sm leading-tight">
-                            <span className="truncate font-medium">{user?.nome_completo}</span>
-                            <span className="truncate text-xs">{user?.email}</span>
+                            {/* <span className="truncate font-medium">{user?.nome_completo}</span> */}
+                            {/* <span className="truncate text-xs">{user?.email}</span> */}
                           </div>
                         </div>
                       </DropdownMenuLabel>

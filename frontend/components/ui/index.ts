@@ -28,18 +28,7 @@ export {
     CarouselNext,
     CarouselPrevious,
 } from "./carousel";
-export { Command } from "./command";
-export { CommandEmpty } from "./command";
-export { CommandGroup } from "./command";
-export { CommandInput } from "./command";
-export { CommandItem } from "./command";
-export { CommandList } from "./command";
-export { Select } from "./select";
-export { SelectContent } from "./select";
-export { SelectItem } from "./select";
-export { SelectTrigger } from "./select";
-export { SelectValue } from "./select";
-export { Popover } from "./popover";
-export { PopoverTrigger } from "./popover";
-export { PopoverContent } from "./popover";
+export { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "./command";
+export { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./select";
+export { Popover, PopoverTrigger, PopoverContent } from "./popover";
 export { Separator } from "./separator";

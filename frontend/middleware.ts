@@ -2,11 +2,11 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 const publicRoutes = [
-  { path: '/', whenAuthed: 'redirect' },          // página de login
+  { path: '/login', whenAuthed: 'redirect' },
   { path: '/cadastre-se', whenAuthed: 'redirect' }
 ]
 
-const REDIRECT_WHEN_NOT_AUTHENTICATED_ROUTE = '/' // página de login
+const REDIRECT_WHEN_NOT_AUTHENTICATED_ROUTE = '/login'
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -36,6 +36,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|api/token/refresh-cookie|api|img).*)',
+    '/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|api/token/refresh-cookie|api|img|gif).*)',
   ],
 }

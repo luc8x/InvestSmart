@@ -4,17 +4,24 @@ import nookies from 'nookies';
 const usersAPI = createAPI('http://localhost:8000/api/users/');
 
 export const registerUser = async (cpf: any, email: any, data_nascimento: any, nome_completo: any, password: any) => {
-  const response = await usersAPI.post('register/', { cpf, email, data_nascimento, nome_completo, password });
+  const response = await usersAPI.post('', { cpf, email, data_nascimento, nome_completo, password, password_confirm: password });
   return response.data;
 };
 
 export const loginUser = async (cpf: string, password: string) => {
   try {
     const res = await usersAPI.post('login/', { cpf, password });
-    const { access_token, user, perfil } = res.data;
+    const { data } = res.data;
+    const { access, refresh, user } = data;
+    const perfil = user.perfil || {};
 
-    nookies.set(null, 'access_token', access_token, {
+    nookies.set(null, 'access_token', access, {
       maxAge: 60 * 60 * 24,
+      path: '/',
+    });
+
+    nookies.set(null, 'refresh_token', refresh, {
+      maxAge: 60 * 60 * 24 * 7,
       path: '/',
     });
 

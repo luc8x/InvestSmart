@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useReducer, useMemo, useCallback } from "react";
 import { format } from "date-fns";
-import { debounce } from "lodash";
 import { Camera, UserRoundPen, Lock, BadgeInfo, ChevronLeft, Calendar as CalendarIcon } from 'lucide-react';
 import { toast } from "sonner";
 import { mask, unMask } from 'remask';
@@ -217,91 +216,91 @@ export default function PerfilPage() {
         }
     }, []);
 
-    const fetchAddressByCEP = useMemo(
-        () => debounce(async (cep: string) => {
-            const cleanCEP = cep.replace(/\D/g, '');
-            if (cleanCEP.length !== 8) return;
+    // const fetchAddressByCEP = useMemo(
+    //     () => debounce(async (cep: string) => {
+    //         const cleanCEP = cep.replace(/\D/g, '');
+    //         if (cleanCEP.length !== 8) return;
 
-            try {
-                dispatch({ 
-                    type: 'SET_USER', 
-                    payload: {
-                        logradouro: '',
-                        bairro: '',
-                        cidade: '',
-                        estado: ''
-                    }
-                });
+    //         try {
+    //             dispatch({ 
+    //                 type: 'SET_USER', 
+    //                 payload: {
+    //                     logradouro: '',
+    //                     bairro: '',
+    //                     cidade: '',
+    //                     estado: ''
+    //                 }
+    //             });
 
-                const response = await fetch(`https://viacep.com.br/ws/${cleanCEP}/json/`);
-                const data = await response.json();
+    //             const response = await fetch(`https://viacep.com.br/ws/${cleanCEP}/json/`);
+    //             const data = await response.json();
 
-                if (data.erro) {
-                    toast.error('Nenhum endereço encontrado com o CEP informado.');
-                    return;
-                }
+    //             if (data.erro) {
+    //                 toast.error('Nenhum endereço encontrado com o CEP informado.');
+    //                 return;
+    //             }
 
-                dispatch({ 
-                    type: 'SET_USER', 
-                    payload: {
-                        logradouro: data.logradouro || '',
-                        bairro: data.bairro || '',
-                        cidade: data.localidade || '',
-                        estado: data.uf || '',
-                    }
-                });
-            } catch (error) {
-                toast.error(`Erro ao buscar CEP: ${error}`);
-            }
-        }, 500),
-        []
-    );
+    //             dispatch({ 
+    //                 type: 'SET_USER', 
+    //                 payload: {
+    //                     logradouro: data.logradouro || '',
+    //                     bairro: data.bairro || '',
+    //                     cidade: data.localidade || '',
+    //                     estado: data.uf || '',
+    //                 }
+    //             });
+    //         } catch (error) {
+    //             toast.error(`Erro ao buscar CEP: ${error}`);
+    //         }
+    //     }, 500),
+    //     []
+    // );
 
-    useEffect(() => {
-        const loadUserData = () => {
-            try {
-                const { user: userData, perfil: perfilData } = getUserFromCookies();
-                const foto = localStorage.getItem('user_foto');
+    // useEffect(() => {
+    //     const loadUserData = () => {
+    //         try {
+    //             const { user: userData, perfil: perfilData } = getUserFromCookies();
+    //             const foto = localStorage.getItem('user_foto');
 
-                if (userData) {
-                    dispatch({
-                        type: 'SET_USER',
-                        payload: {
-                            nomeCompleto: userData.nome_completo,
-                            email: userData.email,
-                            cpf: mask((userData.cpf), ['999.999.999-99']),
-                            dataNascimento: userData.data_nascimento ? parseDate(userData.data_nascimento) : undefined,
-                            foto: foto || null,
-                            telefone: mask((perfilData?.telefone || ''), ['(99) 99999-9999']),
-                            genero: perfilData?.genero || '',
-                            logradouro: perfilData?.logradouro || '',
-                            numero: perfilData?.numero || '',
-                            complemento: perfilData?.complemento || '',
-                            bairro: perfilData?.bairro || '',
-                            cidade: perfilData?.cidade || '',
-                            estado: perfilData?.estado || '',
-                            cep: mask((perfilData?.cep || ''), ['99999-999']),
-                        }
-                    });
-                }
-            } catch (error) {
-                dispatch({ type: 'SET_ERROR', payload: error as Error });
-                toast.error('Erro ao carregar dados do usuário.');
-            } finally {
-                dispatch({ type: 'SET_LOADING', payload: false });
-            }
-        };
+    //             if (userData) {
+    //                 dispatch({
+    //                     type: 'SET_USER',
+    //                     payload: {
+    //                         nomeCompleto: userData.nome_completo,
+    //                         email: userData.email,
+    //                         cpf: mask((userData.cpf), ['999.999.999-99']),
+    //                         dataNascimento: userData.data_nascimento ? parseDate(userData.data_nascimento) : undefined,
+    //                         foto: foto || null,
+    //                         telefone: mask((perfilData?.telefone || ''), ['(99) 99999-9999']),
+    //                         genero: perfilData?.genero || '',
+    //                         logradouro: perfilData?.logradouro || '',
+    //                         numero: perfilData?.numero || '',
+    //                         complemento: perfilData?.complemento || '',
+    //                         bairro: perfilData?.bairro || '',
+    //                         cidade: perfilData?.cidade || '',
+    //                         estado: perfilData?.estado || '',
+    //                         cep: mask((perfilData?.cep || ''), ['99999-999']),
+    //                     }
+    //                 });
+    //             }
+    //         } catch (error) {
+    //             dispatch({ type: 'SET_ERROR', payload: error as Error });
+    //             toast.error('Erro ao carregar dados do usuário.');
+    //         } finally {
+    //             dispatch({ type: 'SET_LOADING', payload: false });
+    //         }
+    //     };
 
-        loadUserData();
-        fetchEstados();
+    //     loadUserData();
+    //     fetchEstados();
 
-        return () => {
-            if (state.user.foto) {
-                URL.revokeObjectURL(state.user.foto);
-            }
-            fetchAddressByCEP.cancel();
-        };
-    }, [fetchAddressByCEP, fetchEstados]);
+    //     return () => {
+    //         if (state.user.foto) {
+    //             URL.revokeObjectURL(state.user.foto);
+    //         }
+    //         fetchAddressByCEP.cancel();
+    //     };
+    // }, [fetchAddressByCEP, fetchEstados]);
 
     useEffect(() => {
         if (state.user.estado) {
@@ -327,7 +326,7 @@ export default function PerfilPage() {
         handleChange('cep', maskedCep);
         
         if (unMask(value).length === 8) {
-            fetchAddressByCEP(maskedCep);
+            // fetchAddressByCEP(maskedCep);
         }
     };
 
