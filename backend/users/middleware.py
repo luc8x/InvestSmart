@@ -29,16 +29,16 @@ class APIResponseMiddleware(MiddlewareMixin):
     
     def process_request(self, request):
         """
-        Adiciona informações de rastreamento à requisição.
+        Processa a requisição antes de chegar à view.
         """
-        request.start_time = time.time()
+        # Gera um ID único para a requisição
         request.request_id = str(uuid.uuid4())
+        request.start_time = time.time()
         
-        # Log da requisição
         logger.info(
             f"[{request.request_id}] {request.method} {request.path} - "
             f"IP: {self.get_client_ip(request)} - "
-            f"User-Agent: {request.META.get('HTTP_USER_AGENT', 'N/A')}"
+            f"User-Agent: {request.META.get('HTTP_USER_AGENT', 'N/A')[:100]}"
         )
         
         return None

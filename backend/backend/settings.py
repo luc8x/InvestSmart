@@ -79,7 +79,18 @@ DATABASES = {
 }
 
 # Emails settings
+# Configurações de Email
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = getenv('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(getenv('EMAIL_PORT', '587'))
+EMAIL_USE_TLS = getenv('EMAIL_USE_TLS', 'True') == 'True'
+EMAIL_HOST_USER = getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = getenv('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = getenv('DEFAULT_FROM_EMAIL', 'InvestSmart <noreply@investsmart.com>')
+
+# Para desenvolvimento, usar console backend se não houver configuração de email
+if not EMAIL_HOST_USER:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Password validation moved to CORS section above
 
@@ -199,7 +210,9 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
-    # Removido DEFAULT_PERMISSION_CLASSES para permitir que cada ViewSet defina suas permissões
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
     'DEFAULT_FILTER_BACKENDS': [

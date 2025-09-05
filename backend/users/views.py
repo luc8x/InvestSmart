@@ -5,6 +5,10 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.db import transaction
+from django.core.mail import send_mail
+from django.conf import settings
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.pagination import PageNumberPagination
 from drf_yasg.utils import swagger_auto_schema
@@ -13,7 +17,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 import logging
 
-from .models import CustomUser, UserPerfil
+from .models import CustomUser, UserPerfil, PasswordResetToken
 from .serializers import (
     UserSerializer, 
     RegisterUserSerializer, 
@@ -81,7 +85,7 @@ class UserViewSet(viewsets.ModelViewSet):
         """
         Define permissões baseadas na action.
         """
-        if self.action in ['create', 'login']:
+        if self.action in ['create', 'login', 'esqueceu_a_senha', 'reset_password']:
             permission_classes = [AllowAny]
         elif self.action in ['me', 'logout', 'update_profile']:
             permission_classes = [IsAuthenticated]
@@ -257,11 +261,243 @@ class UserViewSet(viewsets.ModelViewSet):
                 code="login_internal_error"
             )
     
+    @swagger_auto_schema(
+        method='post',
+        operation_description="Solicita reset de senha por email",
+        operation_summary="Esqueceu a senha",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'email': openapi.Schema(type=openapi.TYPE_STRING, description='Email do usuário')
+            },
+            required=['email']
+        ),
+        responses={
+            200: openapi.Response(
+                description="Email de reset enviado com sucesso",
+                examples={
+                    "application/json": {
+                        "success": True,
+                        "message": "Se o email estiver cadastrado, você receberá as instruções para redefinir sua senha."
+                    }
+                }
+            )
+        },
+        tags=['Autenticação']
+    )
+    @action(detail=False, methods=['post'], permission_classes=[AllowAny])
+    def esqueceu_a_senha(self, request):
+        """
+        Endpoint para solicitar reset de senha.
+        Envia email com token para redefinir senha.
+        """
+        try:
+            email = request.data.get('email')
+            
+            if not email:
+                raise ValidationException(
+                    "Email é obrigatório.",
+                    "missing_email"
+                )
+            
+            try:
+                user = CustomUser.objects.get(email=email)
+                
+                # Invalidar tokens anteriores
+                PasswordResetToken.objects.filter(
+                    user=user, 
+                    used=False
+                ).update(used=True)
+                
+                # Criar novo token
+                reset_token = PasswordResetToken.objects.create(user=user)
+                
+                # Enviar email
+                reset_url = f"http://localhost:3000/redefinir-senha?token={reset_token.token}"
+                
+                subject = 'Redefinir senha - InvestSmart'
+                message = f"""
+                Olá {user.nome_completo},
+                
+                Você solicitou a redefinição de sua senha no InvestSmart.
+                
+                Clique no link abaixo para redefinir sua senha:
+                {reset_url}
+                
+                Este link é válido por 1 hora.
+                
+                Se você não solicitou esta redefinição, ignore este email.
+                
+                Atenciosamente,
+                Equipe InvestSmart
+                """
+                
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user.email],
+                    fail_silently=False,
+                )
+                
+                logger.info(f"Password reset email sent to {email}")
+                
+            except CustomUser.DoesNotExist:
+                # Por segurança, não revelamos se o email existe ou não
+                logger.warning(f"Password reset attempted for non-existent email: {email}")
+            
+            return Response({
+                'success': True,
+                'message': 'Se o email estiver cadastrado, você receberá as instruções para redefinir sua senha.'
+            })
+            
+        except ValidationException as e:
+            logger.error(f"Validation error in forgot password: {e}")
+            return Response(
+                {
+                    'success': False,
+                    'error': {
+                        'code': e.error_code,
+                        'message': str(e),
+                        'details': e.details
+                    }
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            logger.error(f"Unexpected error in forgot password: {e}")
+            return Response(
+                {
+                    'success': False,
+                    'error': {
+                        'code': 'forgot_password_error',
+                        'message': 'Erro interno do servidor.',
+                        'details': None
+                    }
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    @swagger_auto_schema(
+        method='post',
+        operation_description="Redefine senha usando token",
+        operation_summary="Redefinir senha",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'token': openapi.Schema(type=openapi.TYPE_STRING, description='Token de reset'),
+                'new_password': openapi.Schema(type=openapi.TYPE_STRING, description='Nova senha')
+            },
+            required=['token', 'new_password']
+        ),
+        responses={
+            200: openapi.Response(
+                description="Senha redefinida com sucesso",
+                examples={
+                    "application/json": {
+                        "success": True,
+                        "message": "Senha redefinida com sucesso."
+                    }
+                }
+            ),
+            400: openapi.Response(
+                description="Token inválido ou expirado",
+                examples={
+                    "application/json": {
+                        "success": False,
+                        "error": {
+                            "code": "invalid_token",
+                            "message": "Token inválido ou expirado."
+                        }
+                    }
+                }
+            )
+        },
+        tags=['Autenticação']
+    )
+    @action(detail=False, methods=['post'], permission_classes=[AllowAny])
+    def reset_password(self, request):
+        """
+        Endpoint para redefinir senha usando token.
+        """
+        try:
+            token = request.data.get('token')
+            new_password = request.data.get('new_password')
+            
+            if not token or not new_password:
+                raise ValidationException(
+                    "Token e nova senha são obrigatórios.",
+                    "missing_fields"
+                )
+            
+            try:
+                reset_token = PasswordResetToken.objects.get(token=token)
+                
+                if not reset_token.is_valid():
+                    raise ValidationException(
+                        "Token inválido ou expirado.",
+                        "invalid_token"
+                    )
+                
+                # Redefinir senha
+                user = reset_token.user
+                user.set_password(new_password)
+                user.save()
+                
+                # Marcar token como usado
+                reset_token.mark_as_used()
+                
+                # Invalidar outros tokens do usuário
+                PasswordResetToken.objects.filter(
+                    user=user,
+                    used=False
+                ).update(used=True)
+                
+                logger.info(f"Password reset successful for user {user.email}")
+                
+                return Response({
+                    'success': True,
+                    'message': 'Senha redefinida com sucesso.'
+                })
+                
+            except PasswordResetToken.DoesNotExist:
+                raise ValidationException(
+                    "Token inválido.",
+                    "invalid_token"
+                )
+            
+        except ValidationException as e:
+            logger.error(f"Validation error in reset password: {e}")
+            return Response(
+                {
+                    'success': False,
+                    'error': {
+                        'code': e.error_code,
+                        'message': str(e),
+                        'details': e.details
+                    }
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            logger.error(f"Unexpected error in reset password: {e}")
+            return Response(
+                {
+                    'success': False,
+                    'error': {
+                        'code': 'reset_password_error',
+                        'message': 'Erro interno do servidor.',
+                        'details': None
+                    }
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
     @action(detail=False, methods=['post'])
     def logout(self, request):
         """
-        Endpoint para logout de usuário.
-        POST /users/logout/
+        Endpoint para logout do usuário.
+        Invalida o refresh token fornecido.
         """
         try:
             refresh_token = request.data.get('refresh')
