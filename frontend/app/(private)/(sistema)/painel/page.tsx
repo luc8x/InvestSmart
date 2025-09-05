@@ -7,6 +7,7 @@ import { LineChart } from "@/components/lineChart"
 import { RecentTransactions } from "@/components/recenteTransacoes"
 import { Separator } from "@/components/ui/separator"
 import { Input } from "@/components/ui/input"
+import Top10Acoes from "@/components/Top10Acoes"
 
 export default function PainelPage() {
   return (
@@ -168,8 +169,9 @@ export default function PainelPage() {
       </div>
 
 
-      <Separator className="my-4" />
+      {/* <Separator className="my-4" /> */}
 
+    <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
       <Card className="gap-2">
         <CardHeader>
           <div className="flex flex-row items-center justify-between mb-0">
@@ -189,6 +191,16 @@ export default function PainelPage() {
           <RecentTransactions />
         </CardContent>
       </Card>
+      <Card className="gap-2">
+        <CardHeader>
+            <CardTitle>Investimentos</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <hr className=" mb-4 border-gray-200" />
+          <Top10Acoes />
+        </CardContent>
+      </Card>
+    </div>
     </div>
   )
 }
