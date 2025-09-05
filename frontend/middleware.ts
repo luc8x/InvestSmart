@@ -3,6 +3,8 @@ import type { NextRequest } from 'next/server'
 
 const publicRoutes = [
   { path: '/login', whenAuthed: 'redirect' },
+  { path: '/esqueceu-a-senha', whenAuthed: 'redirect' },
+  { path: '/redefinir-senha', whenAuthed: 'redirect' },
   { path: '/cadastre-se', whenAuthed: 'redirect' }
 ]
 

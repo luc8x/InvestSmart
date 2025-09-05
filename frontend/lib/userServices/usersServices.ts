@@ -1,4 +1,4 @@
-import { createAPI } from './axiosConfig';
+import { createAPI } from '../axios/axiosConfig';
 import nookies from 'nookies';
 
 const usersAPI = createAPI('http://localhost:8000/api/users/');
@@ -99,4 +99,24 @@ export const updateUserInfo = async (data: FormData) => {
   }
 
   return res.data;
+};
+
+export const resetPassword = async (email: string) => {
+  try {
+    const res = await usersAPI.post('esqueceu_a_senha/', { email });
+    return res.data;
+  } catch (err) {
+    console.error('Esqueceu a senha error:', err);
+    throw err;
+  }
+};
+
+export const confirmResetPassword = async (token: string, newPassword: string) => {
+  try {
+    const res = await usersAPI.post('reset_password/', { token, new_password: newPassword });
+    return res.data;
+  } catch (err) {
+    console.error('Reset password error:', err);
+    throw err;
+  }
 };

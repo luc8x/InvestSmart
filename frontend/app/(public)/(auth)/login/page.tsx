@@ -1,10 +1,10 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from 'next/navigation';
-import Alert from "@/components/alert";
+import Alert from "@/components/ui/alert";
 import { User, Eye, EyeOff, DoorOpen } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { loginUser } from "@/utils/usersServices";
+import { loginUser } from "@/lib/userServices/usersServices";
 import { Button } from "@/components/ui";
 import Link from "next/link";
 
@@ -141,7 +141,7 @@ export default function loginPage() {
                                         </label>
                                     </div>
                                     <a
-                                    href="/esqueci-senha"
+                                    href="/esqueceu-a-senha"
                                     className="text-purple-300 hover:underline"
                                     >
                                     Esqueceu a senha?

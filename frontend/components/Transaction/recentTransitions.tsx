@@ -40,7 +40,21 @@ const transactions: Transaction[] = [
     descricao: "Compra de Equipamento",
     valor: 1300,
     data: "23/06/2025"
-  }
+  },
+  {
+    id: "5",
+    tipo: "entrada",
+    descricao: "Pagamento Cliente B",
+    valor: 3000,
+    data: "22/06/2025"
+  },
+  {
+    id: "6",
+    tipo: "saida",
+    descricao: "Compra de Equipamento",
+    valor: 2000,
+    data: "21/06/2025"
+  },
 ]
 
 export function RecentTransactions() {

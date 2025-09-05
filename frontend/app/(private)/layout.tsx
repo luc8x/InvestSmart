@@ -2,14 +2,14 @@
 
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { Input } from "@/components/ui/input"
-import { AppSidebar } from "@/components/sidebar"
+import { AppSidebar } from "@/components/Sidebar/sidebar"
 import { useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { LogOut, CircleUser, Search } from "lucide-react"
-import { Layout } from "@/components/layoutContainer"
+import { Layout } from "@/components/LayoutBase/layoutContainer"
 import React from "react"
-import { logoutUser } from "@/utils/usersServices"
+import { logoutUser } from "@/lib/userServices/usersServices"
 
 export default function PrivateLayout({ children }: { children: React.ReactNode }) {
 
@@ -113,7 +113,7 @@ export default function PrivateLayout({ children }: { children: React.ReactNode 
                 </div>
               </div>
               
-              <div className="relative p-2 bg-gray-100 backdrop-blur-sm rounded-xl border border-gray-300/50 shadow-sm">
+              <div className="relative p-7 bg-gray-100 backdrop-blur-sm rounded-xl border border-gray-300/50 shadow-sm">
                 {children}
               </div>
             </main>

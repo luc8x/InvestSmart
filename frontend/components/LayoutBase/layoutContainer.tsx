@@ -9,7 +9,7 @@ export function Layout({ children, collapsed }: { children: ReactNode; collapsed
                 relative
                 overflow-hidden
                 ${collapsed ? 'sidebar-collapsed' : ''}
-                bg-gradient-to-r from-[#001953] to-[#060840]
+                bg-gradient-to-r from-[#260c57] to-[#020d6b]
             `}
         >
             {/* conteúdo principal */}

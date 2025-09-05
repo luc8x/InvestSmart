@@ -1,13 +1,13 @@
 "use client";
 import { useState } from "react";
 import { User, AtSign, Eye, EyeOff, Calendar as CalendarIcon, UserCircle } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utilities/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { registerUser } from "@/utils/usersServices";
-import Alert from "@/components/alert";
+import { registerUser } from "@/lib/userServices/usersServices";
+import Alert from "@/components/ui/alert";
 import Link from "next/link";
 
 export default function LoginPage() {

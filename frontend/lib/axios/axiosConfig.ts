@@ -9,7 +9,7 @@ export const createAPI = (baseURL: string) => {
 
   api.interceptors.request.use(
     (config) => {
-      const publicEndpoints = ['register/', 'login/'];
+      const publicEndpoints = ['register/', 'login/', 'esqueceu_a_senha/', 'reset_password/'];
       const isPublicEndpoint = publicEndpoints.some(endpoint => 
         config.url?.includes(endpoint)
       ) || (config.method === 'post' && (config.url === '' || config.url === '/'));

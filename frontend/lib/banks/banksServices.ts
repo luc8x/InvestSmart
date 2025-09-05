@@ -1,4 +1,4 @@
-import { createAPI } from './axiosConfig';
+import { createAPI } from '../axios/axiosConfig';
 
 const bancosAPI = createAPI('http://localhost:8000/api/bancos/');
 

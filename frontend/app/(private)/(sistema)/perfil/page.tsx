@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useEffect, useReducer, useMemo, useCallback } from "react";
+import { useState, useEffect, useReducer, useCallback } from "react";
 import { format } from "date-fns";
 import { Camera, UserRoundPen, Lock, BadgeInfo, ChevronLeft, Calendar as CalendarIcon } from 'lucide-react';
 import { toast } from "sonner";
 import { mask, unMask } from 'remask';
 
-// Componentes UI
 import {
     Command,
     CommandEmpty,
@@ -33,10 +32,10 @@ import {
     PopoverTrigger,
     Separator
 } from "@/components/ui/index";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utilities/utils";
 
 // Serviços
-import { getUserFromCookies, updateUserInfo } from '@/utils/usersServices';
+import { updateUserInfo } from '@/lib/userServices/usersServices';
 
 interface User {
     id: number;
@@ -123,12 +122,6 @@ function reducer(state: State, action: any): State {
             return state;
     }
 }
-
-const parseDate = (date: string | null | undefined): Date | null => {
-    if (!date) return null;
-    const d = new Date(date);
-    return isNaN(d.getTime()) ? null : d;
-};
 
 const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {

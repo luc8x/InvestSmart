@@ -9,7 +9,7 @@ import { Banco, UsuarioBanco, columns } from "@/components/Bancos/ListBancos/col
 import { DataTable } from "@/components/Bancos/ListBancos/data-table"
 import Image from "next/image";
 import { DollarSign, ChevronsUpDown } from 'lucide-react';
-import { listarBancos } from '@/utils/bancosServicos';
+import { listarBancos } from '@/lib/banks/banksServices';
 
 const contas = [
   {
