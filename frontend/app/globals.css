@@ -16,6 +16,8 @@
   --color-10: rgb(44, 49, 54);
   --color-12: rgba(126, 88, 240, 1);
   --color-13: rgba(126, 88, 240, 0.6);
+  --color-14: #a65af6;
+  --color-15: #482af1;
   --btn-hover: #171717;
   --radius: 0.625rem;
   --card: oklch(1 0 0);
@@ -43,8 +45,8 @@
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-accent: #2c3136;
+  --sidebar-accent-foreground: #fff;
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
   --background: oklch(1 0 0);
@@ -115,8 +117,7 @@
 }
 
 body {
-  background: var(--color-7);
-  color: #fff;
+  background: #E3E9F0;
   font-family: "Sora", sans-serif;
 }
 
@@ -145,21 +146,11 @@ body {
 }
 
 .card-bg-d-purple {
-  background: linear-gradient(90deg, var(--color-4) 30%, var(--color-2) 90%);
+  background: linear-gradient(90deg, #3c0e60 30%, #381467 150%);
 }
 
 .card-bg-d-purple-2 {
   background: linear-gradient(90deg, #501380 30%, #2a0f4d 90%);
-}
-
-@media screen and (max-width: 768px) {
-  .card-bg-d-purple {
-    background: linear-gradient(90deg, var(--color-4) 30%, var(--color-2) 150%);
-  }
-
-  .card-bg-d-purple {
-    background: linear-gradient(90deg, #3c0e60 30%, #381467 150%);
-  }
 }
 
 .flip-container {
@@ -266,4 +257,35 @@ body {
 
 .dot-animate.delay-300 {
   animation-delay: 0.3s;
+}
+
+.mouse-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    600px circle at var(--mouse-x) var(--mouse-y),
+    rgba(59, 130, 246, 0.12),
+    transparent 60%
+  );
+  transition: background 0.2s ease;
+  z-index: 0;
+}
+
+.mouse-card {
+  position: relative;
+  z-index: 1;
+}
+
+@layer utilities {
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
+    box-shadow: 0 0 0px 1000px transparent inset !important;
+    -webkit-text-fill-color: #ffffff !important;
+    transition: background-color 5000s ease-in-out 0s;
+  }
 }

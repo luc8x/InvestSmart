@@ -1,17 +1,19 @@
-// middleware.ts
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 const publicRoutes = [
-  { path: '/', whenAuthed: 'redirect' },         // login
+  { path: '/login', whenAuthed: 'redirect' },
+  { path: '/esqueceu-a-senha', whenAuthed: 'redirect' },
+  { path: '/redefinir-senha', whenAuthed: 'redirect' },
   { path: '/cadastre-se', whenAuthed: 'redirect' }
 ]
 
-const REDIRECT_WHEN_NOT_AUTHENTICATED_ROUTE = '/' // login
+const REDIRECT_WHEN_NOT_AUTHENTICATED_ROUTE = '/login'
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
-  const token = request.cookies.get('access_token')
+
+  const token = request.cookies.get('access_token')?.value
 
   const publicRoute = publicRoutes.find(route => route.path === pathname)
 
@@ -36,6 +38,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|api).*)',
+    '/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|api/token/refresh-cookie|api|img|gif).*)',
   ],
 }

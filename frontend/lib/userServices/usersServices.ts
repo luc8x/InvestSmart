@@ -1,0 +1,122 @@
+import { createAPI } from '../axios/axiosConfig';
+import nookies from 'nookies';
+
+const usersAPI = createAPI('http://localhost:8000/api/users/');
+
+export const registerUser = async (cpf: any, email: any, data_nascimento: any, nome_completo: any, password: any) => {
+  const response = await usersAPI.post('', { cpf, email, data_nascimento, nome_completo, password, password_confirm: password });
+  return response.data;
+};
+
+export const loginUser = async (cpf: string, password: string) => {
+  try {
+    const res = await usersAPI.post('login/', { cpf, password });
+    const { data } = res.data;
+    const { access, refresh, user } = data;
+    const perfil = user.perfil || {};
+
+    nookies.set(null, 'access_token', access, {
+      maxAge: 60 * 60 * 24,
+      path: '/',
+    });
+
+    nookies.set(null, 'refresh_token', refresh, {
+      maxAge: 60 * 60 * 24 * 7,
+      path: '/',
+    });
+
+    if (perfil.foto) {
+      localStorage.setItem('user_foto', perfil.foto);
+      perfil.foto = null;
+    }
+
+    nookies.set(null, 'user_info', JSON.stringify(user), {
+      maxAge: 60 * 60 * 24,
+      path: '/',
+    });
+
+    if (perfil.foto) {perfil.foto = null}
+
+    nookies.set(null, 'perfil_info', JSON.stringify(perfil), {
+      maxAge: 60 * 60 * 24,
+      path: '/',
+    });
+
+    return true;
+  } catch (err) {
+    console.error('Login error:', err);
+    return false;
+  }
+};
+
+export const getUserFromCookies = () => {
+  try {
+    const cookies = nookies.get();
+    const user = cookies.user_info ? JSON.parse(cookies.user_info) : null;
+    const perfil = cookies.perfil_info ? JSON.parse(cookies.perfil_info) : null;
+    return {user, perfil}
+  } catch (error) {
+    console.error('Erro ao ler user_info dos cookies:', error);
+    return { user: null, perfil: null };
+  }
+};
+
+export const logoutUser = async (ctx = null) => {
+  nookies.destroy(ctx, 'user_info');
+  if (localStorage.getItem('user_foto')){
+    localStorage.removeItem('user_foto');
+  }
+  nookies.destroy(ctx, 'access_token');
+  window.location.href = '/';
+};
+
+export const getUserInfo = async () => {
+  const res = await usersAPI.get('me/');
+  return res.data;
+};
+
+export const updateUserInfo = async (data: FormData) => {
+  const res = await usersAPI.put('me/', data);
+  
+  if (res.status === 200) {
+
+    if (res.data.perfil.foto) {
+      localStorage.setItem('user_foto', res.data.perfil.foto);
+      res.data.perfil.foto = null;
+    }
+
+    nookies.set(null, 'user_info', JSON.stringify(res.data.user), {
+      maxAge: 60 * 60 * 24,
+      path: '/',
+    });
+
+    if (res.data.perfil.foto) {res.data.perfil.foto = null}
+
+    nookies.set(null, 'perfil_info', JSON.stringify(res.data.perfil), {
+      maxAge: 60 * 60 * 24,
+      path: '/',
+    });
+  }
+
+  return res.data;
+};
+
+export const resetPassword = async (email: string) => {
+  try {
+    const res = await usersAPI.post('esqueceu_a_senha/', { email });
+    return res.data;
+  } catch (err) {
+    console.error('Esqueceu a senha error:', err);
+    throw err;
+  }
+};
+
+export const confirmResetPassword = async (token: string, newPassword: string) => {
+  try {
+    const res = await usersAPI.post('reset_password/', { token, new_password: newPassword });
+    return res.data;
+  } catch (err) {
+    console.error('Reset password error:', err);
+    throw err;
+  }
+};
