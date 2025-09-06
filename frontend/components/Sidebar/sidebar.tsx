@@ -75,15 +75,7 @@ export function AppSidebar({ collapsed, isTransitioning }: { collapsed: boolean;
   )
 }
 
-interface SidebarLinkProps {
-  href: string
-  icon: React.ReactNode
-  label: string
-  collapsed: boolean
-  isTransitioning?: boolean
-}
-
-export function SidebarLink({ href, icon, label, collapsed, isTransitioning }: SidebarLinkProps) {
+export function SidebarLink({ href, icon, label, collapsed, isTransitioning }: { href: string, icon: React.ReactNode, label: string, collapsed: boolean, isTransitioning?: boolean }) {
   const pathname = usePathname()
   const isActive = pathname === href
 

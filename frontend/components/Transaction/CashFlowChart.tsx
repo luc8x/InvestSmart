@@ -9,7 +9,6 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
-  Legend,
 } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ToolsCashFlowChart } from "./ToolsCashFlowChart"
@@ -44,7 +43,7 @@ export function CashFlowChart() {
             <ExportButton data={chartData} period={currentPeriod} />
           </div>
         </div>
-        
+        <hr className=" mb-4 border-gray-200" />
         <CashFlowKPIs data={chartData} previousData={previousData} />
       </CardHeader>
       
@@ -80,9 +79,6 @@ export function CashFlowChart() {
                   name
                 ]}
               />
-              {/* <Legend 
-                wrapperStyle={{ paddingTop: '20px' }}
-              /> */}
               <Line
                 type="monotone"
                 dataKey="entrada"

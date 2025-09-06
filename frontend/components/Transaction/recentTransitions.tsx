@@ -2,7 +2,7 @@
 
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ArrowDown, ArrowUp, Banknote } from "lucide-react"
+import { ArrowDown, ArrowUp } from "lucide-react"
 
 interface Transaction {
   id: string
@@ -55,13 +55,34 @@ const transactions: Transaction[] = [
     valor: 2000,
     data: "21/06/2025"
   },
+  {
+    id: "7",
+    tipo: "saida",
+    descricao: "Compra de Equipamento",
+    valor: 2000,
+    data: "21/06/2025"
+  },
+  {
+    id: "8",
+    tipo: "saida",
+    descricao: "Compra de Equipamento",
+    valor: 2000,
+    data: "21/06/2025"
+  },
+  {
+    id: "9",
+    tipo: "saida",
+    descricao: "Compra de Equipamento",
+    valor: 2000,
+    data: "21/06/2025"
+  },
 ]
 
 export function RecentTransactions() {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
       {transactions.map((tx) => (
-        <Card key={tx.id} className="p-3">
+        <Card key={tx.id} className='p-3'>
           <CardContent className="flex items-center justify-between p-0">
             <div className="flex items-center gap-3">
               {tx.tipo === "entrada" ? (

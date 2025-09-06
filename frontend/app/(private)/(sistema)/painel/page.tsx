@@ -1,16 +1,13 @@
 "use client"
 
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { motion } from "framer-motion"
 import { ArrowUp, BarChart, CreditCard, DollarSign, Search, TrendingUp } from "lucide-react"
-
+import { InfoValue } from "@/components/InfoMetrics/InfoValue"
 import { CashFlowChart } from "@/components/Transaction/CashFlowChart"
 import { RecentTransactions } from "@/components/Transaction/recentTransitions"
 import { Input } from "@/components/ui/input"
-import Top10Acoes from "@/components/Stocks/topStocks"
-
-
+import { TopStocksCard } from "@/components/Stocks/topStocks"
+import { GoalsCard } from "@/components/Goals/GoalsCard"
 
 export default function PainelPage() {
 
@@ -18,149 +15,10 @@ export default function PainelPage() {
     <div className="grid gap-7 md:grid-cols-1 lg:grid-cols-2">
       <div className="flex flex-col gap-7">
         <div className="grid gap-7 md:grid-cols-1 lg:grid-cols-2">
-        <motion.div
-          initial={{ opacity: 0, y: 20, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
-          className="transform-gpu"
-        >
-          <Card className="flex flex-col justify-between h-full hover:shadow-lg transition-shadow duration-300">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-base font-medium text-muted-foreground">
-                Saldo Atual
-              </CardTitle>
-              <motion.div
-                initial={{ x: -10, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.5, ease: "easeOut" }}
-              >
-                <DollarSign size={24} className="text-gray-400" />
-              </motion.div>
-            </CardHeader>
-
-            <CardContent className="mt-auto">
-              <motion.div 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                className="text-4xl font-bold text-foreground"
-              >
-                R$ 12.300,00
-              </motion.div>
-              <p className="text-xs text-muted-foreground mt-1">Atualizado hoje</p>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
-          className="transform-gpu"
-        >
-          <Card className="flex flex-col justify-between h-full hover:shadow-lg transition-shadow duration-300">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-base font-medium text-muted-foreground">
-                Receitas
-              </CardTitle>
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ duration: 0.5, delay: 0.4, type: "spring", stiffness: 200 }}
-              >
-                <TrendingUp size={24} className="text-gray-400" />
-              </motion.div>
-            </CardHeader>
-
-            <CardContent className="mt-auto">
-              <motion.div 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 0.5 }}
-                className="text-4xl font-bold text-green-600"
-              >
-                R$ 4.500,00
-              </motion.div>
-              <p className="text-xs text-muted-foreground mt-1">Este mês</p>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
-          className="transform-gpu"
-        >
-          <Card className="flex flex-col justify-between h-full hover:shadow-lg transition-shadow duration-300">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-base font-medium text-muted-foreground">
-                Despesas
-              </CardTitle>
-              <motion.div
-                initial={{ x: -10, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.5, ease: "easeOut" }}
-              >
-                <CreditCard size={24} className="text-gray-400" />
-              </motion.div>
-            </CardHeader>
-
-            <CardContent className="mt-auto">
-              <motion.div 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 0.6 }}
-                className="text-4xl font-bold text-red-500"
-              >
-                R$ 3.200,00
-              </motion.div>
-              <p className="text-xs text-muted-foreground mt-1">Este mês</p>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.4, ease: "easeOut" }}
-          className="transform-gpu"
-        >
-          <Card className="flex flex-col justify-between h-full hover:shadow-lg transition-shadow duration-300">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-base font-medium text-muted-foreground">
-                Lucro
-              </CardTitle>
-              <motion.div
-                initial={{ rotate: -180, opacity: 0 }}
-                animate={{ rotate: 0, opacity: 1 }}
-                transition={{ duration: 0.7, delay: 0.6, ease: "easeOut" }}
-              >
-                <BarChart size={24} className="text-gray-400" />
-              </motion.div>
-            </CardHeader>
-
-            <CardContent className="mt-auto">
-              <motion.div 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 0.7 }}
-                className="text-4xl font-bold text-green-600 flex gap-2 items-center"
-              >
-                R$ 1.300,00
-                <motion.div
-                  animate={{ y: [0, -8, 0] }}
-                  transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                >
-                  <ArrowUp className="text-green-600" />
-                </motion.div>
-              </motion.div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Comparado ao mês anterior
-              </p>
-            </CardContent>
-          </Card>
-        </motion.div>
+          <InfoValue title="Saldo Atual" value="R$ 12.300,00" icon={<DollarSign size={24} className="text-gray-400" />} description="Atualizado hoje" delay={0.2} />
+          <InfoValue title="Receitas" value="R$ 4.500,00" icon={<TrendingUp size={24} className="text-gray-400" />} description="Este mês" titleColor="text-green-600" delay={0.4} />
+          <InfoValue title="Despesas" value="R$ 3.200,00" icon={<CreditCard size={24} className="text-gray-400" />} description="Este mês" titleColor="text-red-600" delay={0.6} />
+          <InfoValue title="Lucro" value="R$ 1.300,00" icon={<BarChart size={24} className="text-gray-400" />} iconComparison={<ArrowUp size={24} className="text-green-600" />} description="Comparado ao mês anterior" titleColor="text-green-600" delay={0.8} />
         </div>
         <Card className="gap-2 h-full">
           <CardHeader>
@@ -170,7 +28,7 @@ export default function PainelPage() {
                 <Input
                   type="text"
                   placeholder="Procurar..."
-                  className="pr-9 w-48 focus:w-56 border border-gray-200 backdrop-blur-sm rounded-full text-white placeholder:text-gray-900/60 focus:shadow-none focus:border-white/40 transition-all duration-300"
+                  className="pr-9 w-48 focus:w-56 border border-gray-200 backdrop-blur-sm rounded-full text-black placeholder:text-gray-900/60 focus:shadow-none focus:border-white/40 transition-all duration-300"
                 />
                 <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 group-hover:text-white/80 transition-colors duration-200" />
               </div>
@@ -184,16 +42,42 @@ export default function PainelPage() {
       </div>
 
       <div className="flex flex-col gap-7">
-        <CashFlowChart />
-        <Card className="gap-2 h-full">
-          <CardHeader>
-              <CardTitle>Investimentos</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <hr className=" mb-4 border-gray-200" />
-            <Top10Acoes />
-          </CardContent>
-        </Card>
+        <div>
+          <CashFlowChart />
+        </div>
+        <div className="grid gap-7 md:grid-cols-1 lg:grid-cols-2">
+          <Card className="gap-2 h-full">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>Metas</CardTitle>
+              <div className="flex flex-row items-center justify-between">
+                <span className="text-sm text-muted-foreground">
+                  2 metas ativas
+                </span>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <hr className="mb-4 border-gray-200" />
+              <div className="max-h-[200px] overflow-y-auto pr-2">
+                <div className="grid gap-4">
+                  <GoalsCard />
+                  <GoalsCard />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div>
+            <Card className="gap-2 h-full">
+              <CardHeader>
+                <CardTitle>Investimentos</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <hr className=" mb-4 border-gray-200" />
+                <TopStocksCard />
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     </div>
   )

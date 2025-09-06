@@ -2,14 +2,12 @@
 
 import { ArrowUp, ArrowDown } from "lucide-react"
 
-interface CashFlowData {
-  dia: string
-  entrada: number
-  saida: number
-}
-
 interface TopTransactionsProps {
-  data: CashFlowData[]
+  data: {
+    dia: string
+    entrada: number
+    saida: number
+  }[]
 }
 
 export function TopTransactions({ data }: TopTransactionsProps) {

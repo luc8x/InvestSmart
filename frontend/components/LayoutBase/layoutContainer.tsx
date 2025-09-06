@@ -12,7 +12,6 @@ export function Layout({ children, collapsed }: { children: ReactNode; collapsed
                 bg-gradient-to-r from-[#260c57] to-[#020d6b]
             `}
         >
-            {/* conteúdo principal */}
             <div className="relative z-10">
                 {children}
             </div>

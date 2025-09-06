@@ -15,7 +15,7 @@ interface Stock {
     percentChange: number;
 }
 
-export default function TopStocksCard() {
+export function TopStocksCard() {
     const [stocks, setStocks] = useState<Stock[]>([]);
     const [filter, setFilter] = useState("");
 
@@ -67,7 +67,7 @@ export default function TopStocksCard() {
                         <Input
                             type="text"
                             placeholder="Procurar..."
-                            className="pr-9 w-48 focus:w-56 border border-gray-200 backdrop-blur-sm rounded-full text-white placeholder:text-gray-900/60 focus:shadow-none focus:border-white/40 transition-all duration-300"
+                            className="pr-9 w-48 focus:w-56 border border-gray-200 backdrop-blur-sm rounded-full text-black placeholder:text-gray-900/60 focus:shadow-none focus:border-white/40 transition-all duration-300"
                             value={filter}
                             onChange={e => setFilter(e.target.value)}
                         />

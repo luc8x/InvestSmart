@@ -3,14 +3,12 @@
 import { Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-interface CashFlowData {
-  dia: string
-  entrada: number
-  saida: number
-}
-
 interface ExportButtonProps {
-  data: CashFlowData[]
+  data:  {
+    dia: string
+    entrada: number
+    saida: number
+  }[]
   period: string
 }
 

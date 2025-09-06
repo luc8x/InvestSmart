@@ -8,12 +8,7 @@ interface CashFlowData {
   saida: number
 }
 
-interface CashFlowKPIsProps {
-  data: CashFlowData[]
-  previousData?: CashFlowData[]
-}
-
-export function CashFlowKPIs({ data, previousData }: CashFlowKPIsProps) {
+export function CashFlowKPIs({ data, previousData }: {data: CashFlowData[], previousData?: CashFlowData[]}) {
   const currentBalance = data.reduce((acc, item) => acc + item.entrada - item.saida, 0)
   const previousBalance = previousData ? previousData.reduce((acc, item) => acc + item.entrada - item.saida, 0) : 0
   
