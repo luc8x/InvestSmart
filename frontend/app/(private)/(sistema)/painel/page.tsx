@@ -22,7 +22,7 @@ export default function PainelPage() {
         </div>
         <Card className="gap-2 h-full">
           <CardHeader>
-            <div className="flex flex-row items-center justify-between mb-0">
+            <div className="flex items-center justify-between">
               <CardTitle>Transações Recentes</CardTitle>
               <div className="relative group">
                 <Input
@@ -47,9 +47,9 @@ export default function PainelPage() {
         </div>
         <div className="grid gap-7 md:grid-cols-1 lg:grid-cols-2">
           <Card className="gap-2 h-full">
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex items-center justify-between">
               <CardTitle>Metas</CardTitle>
-              <div className="flex flex-row items-center justify-between">
+              <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">
                   2 metas ativas
                 </span>
@@ -57,7 +57,7 @@ export default function PainelPage() {
             </CardHeader>
             <CardContent>
               <hr className="mb-4 border-gray-200" />
-              <div className="max-h-[200px] overflow-y-auto pr-2">
+              <div className="pr-2">
                 <div className="grid gap-4">
                   <GoalsCard />
                   <GoalsCard />
@@ -72,7 +72,7 @@ export default function PainelPage() {
                 <CardTitle>Investimentos</CardTitle>
               </CardHeader>
               <CardContent>
-                <hr className=" mb-4 border-gray-200" />
+                <hr className="mb-4 border-gray-200" />
                 <TopStocksCard />
               </CardContent>
             </Card>
