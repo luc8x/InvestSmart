@@ -8,6 +8,7 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  useSidebar,
 } from "@/components/ui/sidebar"
 import { cn } from "@/lib/utilities/utils"
 import {
@@ -18,7 +19,9 @@ import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from 'next/navigation'
 
-export function AppSidebar({ collapsed, isTransitioning }: { collapsed: boolean; isTransitioning?: boolean }) {
+export function AppSidebar({ isTransitioning }: { isTransitioning?: boolean }) {
+  const { state } = useSidebar()
+  const collapsed = state === "collapsed"
 
   return (
     <Sidebar
@@ -62,11 +65,10 @@ export function AppSidebar({ collapsed, isTransitioning }: { collapsed: boolean;
           <SidebarMenu className="space-y-1">
             <hr className="my-2 border-white/30" />
             <SidebarMenuItem>
-              <SidebarLink href="/painel" icon={<Home size={20} />} label="Painel" collapsed={collapsed} isTransitioning={isTransitioning} />
-            </SidebarMenuItem>
-
-            <SidebarMenuItem>
-              <SidebarLink href="/bancos" icon={<Landmark size={20} />} label="Banco" collapsed={collapsed} isTransitioning={isTransitioning} />
+              <SidebarLink href="/painel" icon={<Home size={20} />} label="Painel" isTransitioning={isTransitioning} />
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarLink href="/bancos" icon={<Landmark size={20} />} label="Banco" isTransitioning={isTransitioning} />
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>
@@ -75,7 +77,9 @@ export function AppSidebar({ collapsed, isTransitioning }: { collapsed: boolean;
   )
 }
 
-export function SidebarLink({ href, icon, label, collapsed, isTransitioning }: { href: string, icon: React.ReactNode, label: string, collapsed: boolean, isTransitioning?: boolean }) {
+export function SidebarLink({ href, icon, label, isTransitioning }: { href: string, icon: React.ReactNode, label: string, isTransitioning?: boolean }) {
+  const { state } = useSidebar()
+  const collapsed = state === "collapsed"
   const pathname = usePathname()
   const isActive = pathname === href
 

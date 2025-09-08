@@ -3,7 +3,7 @@
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { Input } from "@/components/ui/input"
 import { AppSidebar } from "@/components/Sidebar/sidebar"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { LogOut, CircleUser, Search } from "lucide-react"
@@ -11,20 +11,22 @@ import { Layout } from "@/components/LayoutBase/layoutContainer"
 import React from "react"
 import { logoutUser } from "@/lib/userServices/usersServices"
 
+
 export default function PrivateLayout({ children }: { children: React.ReactNode }) {
 
-  const [collapsed, setCollapsed] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [foto, setFoto] = useState();
+
+
 
   const handleLogout = async () => {
     await logoutUser();
   };
 
   return (
-    <Layout collapsed={collapsed}>
+    <Layout>
       <SidebarProvider>
-        <AppSidebar collapsed={collapsed} isTransitioning={isTransitioning} />
+        <AppSidebar isTransitioning={isTransitioning} />
         <SidebarInset
           className="bg-transparent"
           style={{
@@ -39,15 +41,6 @@ export default function PrivateLayout({ children }: { children: React.ReactNode 
               <div className="flex gap-3 items-center mb-5 justify-between">
                 <div className="group">
                   <SidebarTrigger 
-                    onClick={() => {
-                      if (!isTransitioning) {
-                        setIsTransitioning(true);
-                        setTimeout(() => {
-                          setCollapsed((prev) => !prev);
-                          setIsTransitioning(false);
-                        }, collapsed ? 0 : 300);
-                      }
-                    }}
                     className="flex items-center justify-center w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 transition-all duration-300 group-hover:scale-105"
                   />
                 </div>

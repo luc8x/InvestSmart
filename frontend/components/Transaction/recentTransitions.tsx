@@ -80,7 +80,7 @@ const transactions: Transaction[] = [
 
 export function RecentTransactions() {
   return (
-    <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
+    <div className="space-y-4 pr-2">
       {transactions.map((tx) => (
         <Card key={tx.id} className='p-3'>
           <CardContent className="flex items-center justify-between p-0">
