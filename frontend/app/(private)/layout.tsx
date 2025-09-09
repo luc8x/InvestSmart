@@ -1,15 +1,14 @@
 'use client'
 
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
-import { Input } from "@/components/ui/input"
 import { AppSidebar } from "@/components/Sidebar/sidebar"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { LogOut, CircleUser, Search } from "lucide-react"
+import { LogOut, CircleUser } from "lucide-react"
 import { Layout } from "@/components/LayoutBase/layoutContainer"
 import React from "react"
-import { logoutUser } from "@/lib/userServices/usersServices"
+import { logoutUser } from "@/services/users/user"
 
 
 export default function PrivateLayout({ children }: { children: React.ReactNode }) {
@@ -17,14 +16,12 @@ export default function PrivateLayout({ children }: { children: React.ReactNode 
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [foto, setFoto] = useState();
 
-
-
   const handleLogout = async () => {
     await logoutUser();
   };
 
   return (
-    <Layout>
+    <Layout collapsed={false}>
       <SidebarProvider>
         <AppSidebar isTransitioning={isTransitioning} />
         <SidebarInset

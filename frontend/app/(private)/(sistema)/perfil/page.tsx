@@ -35,7 +35,7 @@ import {
 import { cn } from "@/lib/utilities/utils";
 
 // Serviços
-import { updateUserInfo } from '@/lib/userServices/usersServices';
+import { updateUserInfo } from '@/services/users/userServices/usersServices';
 
 interface User {
     id: number;

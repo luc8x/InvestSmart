@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from 'next/navigation';
 import Alert from "@/components/ui/alert";
 import { Lock, Eye, EyeOff } from "lucide-react";
-import { confirmResetPassword } from "@/lib/userServices/usersServices";
+import { confirmResetPassword } from "@/services/users/userServices/usersServices";
 import { Button } from "@/components/ui";
 import Link from "next/link";
 

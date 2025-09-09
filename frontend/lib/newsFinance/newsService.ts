@@ -13,7 +13,7 @@ export interface NewsResponse {
   nextPage: number
 }
 
-const API_KEY = "bcyDzZlcOYnUhj6aNS9WPn0zh2XsD2X8yJUEggm0"
+const API_KEY = "g0BfhMIRkVOYp6Pm5HYUb6HwN3UplGJfIpPceG6n"
 
 export const fetchFinancialNews = async (
   page: number = 1,

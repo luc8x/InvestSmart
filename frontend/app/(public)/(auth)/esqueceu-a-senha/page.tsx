@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Alert from "@/components/ui/alert";
 import { AtSign, Mail } from "lucide-react";
-import { resetPassword } from "@/lib/userServices/usersServices";
+import { resetPassword } from "@/services/users/userServices/usersServices";
 import { Button } from "@/components/ui";
 import Link from "next/link";
 
