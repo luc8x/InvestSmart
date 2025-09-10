@@ -143,7 +143,7 @@ export function BankNews() {
       setSummaries(prev => ({ ...prev, [noticiaId]: summary }))
     } catch (error) {
       console.error('Erro ao obter resumo:', error)
-      setSummaries(prev => ({ ...prev, [noticiaId]: 'Erro ao gerar resumo. Tente novamente.' }))
+      setSummaries(prev => ({ ...prev, [noticiaId]: 'Erro ao gerar resumo. Tente novamente mais tarde.' }))
     } finally {
       setLoadingSummaries(prev => ({ ...prev, [noticiaId]: false }))
     }

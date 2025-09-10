@@ -5,7 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Trash2, PieChart, Edit } from "lucide-react"
 import { BankForm } from "./BankForm"
 import BankPieChart from './BankPieChart'
-import BankMetricsCards from './BankMetricsCards'
+import BankMetricsCards from './BankMetrics'
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "../ui/scroll-area"
 

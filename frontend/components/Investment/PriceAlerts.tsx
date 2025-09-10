@@ -35,7 +35,7 @@ export function PriceAlerts() {
                 <hr className="mb-4 border-gray-200" />
                 <div className="space-y-4">
                     <ScrollArea className="h-60">
-                        <div className="flex flex-col gap-3 pr-1">
+                        <div className="flex flex-col gap-4 pr-1">
                             {priceAlerts.map((alert, index) => (
                                 <div key={index} className="flex items-center justify-between p-3 border rounded-lg shadow-sm hover:shadow-lg transition-shadow">
                                     <div className="flex items-center gap-3">

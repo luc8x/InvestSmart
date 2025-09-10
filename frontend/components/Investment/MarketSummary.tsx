@@ -26,22 +26,22 @@ export function MarketSummary() {
                 <div className="grid grid-cols-2 gap-4">
                     <div className="flex flex-col p-3 rounded-lg border shadow-sm hover:shadow-lg transition">
                         <span className="text-xs text-gray-500">Maior Alta</span>
-                        <span className="font-semibold text-green-600 flex items-center gap-1">
+                        <span className="font-semibold text-purple-600 flex items-center gap-1">
                             <TrendingUp className="w-4 h-4" /> PETR4 +4.2%
                         </span>
                     </div>
 
                     <div className="flex flex-col p-3 rounded-lg border shadow-sm hover:shadow-lg transition">
                         <span className="text-xs text-gray-500">Maior Queda</span>
-                        <span className="font-semibold text-red-600 flex items-center gap-1">
+                        <span className="font-semibold text-gray-800 flex items-center gap-1">
                             <TrendingDown className="w-4 h-4" /> VALE3 -3.8%
                         </span>
                     </div>
 
                     <div className="flex flex-col p-3 rounded-lg border shadow-sm hover:shadow-lg transition">
-                        <span className="text-xs text-gray-500">Ibovespa</span>
-                        <span className="font-semibold text-blue-600 flex items-center gap-1">
-                            <TrendingUp className="w-4 h-4" /> 118.400 pts (+1.2%)
+                        <span className="text-xs text-gray-500">Valor do Bitcoin</span>
+                        <span className="font-semibold text-purple-600 flex items-center gap-1">
+                            <TrendingUp className="w-4 h-4" /> R$ 600.000
                         </span>
                     </div>
 

@@ -46,28 +46,46 @@ export function RecentMovements() {
             total: "R$ 1.264,00",
             date: "3 dias",
             isPositive: false
+        },
+        {
+            asset: "BBDC4",
+            type: "Compra",
+            quantity: 80,
+            price: "R$ 15,80",
+            total: "R$ 1.264,00",
+            date: "3 dias",
+            isPositive: false
+        },
+        {
+            asset: "BBDC4",
+            type: "Compra",
+            quantity: 80,
+            price: "R$ 15,80",
+            total: "R$ 1.264,00",
+            date: "3 dias",
+            isPositive: false
         }
     ]
 
     return (
-        <Card className="gap-2 h-full col-span-2">
+        <Card className="gap-2 h-full">
             <CardHeader>
                 <CardTitle>Movimentações Recentes</CardTitle>
             </CardHeader>
             <CardContent>
                 <hr className="mb-4 border-gray-200" />
                 <div className="space-y-3">
-                    <ScrollArea className="h-60">
+                    <ScrollArea className="h-103">
                         <div className="flex flex-col gap-3 pr-1">
                             {recentMovements.map((movement, index) => (
                                 <div key={index} className="flex items-center justify-between p-4 rounded-lg border shadow-sm hover:shadow-lg transition-all duration-200">
                                     <div className="flex items-center gap-4">
-                                        <div className={`w-12 h-12 rounded-full flex items-center justify-center ${movement.isPositive ? 'bg-green-100 border-2 border-green-200' : 'bg-red-100 border-2 border-red-200'
+                                        <div className={`w-12 h-12 rounded-full flex items-center justify-center ${movement.isPositive ? 'bg-purple-100 border-2 border-purple-200' : 'bg-gray-300 border-2 border-gray-200'
                                             }`}>
                                             {movement.isPositive ? (
-                                                <ArrowUpRight className="w-5 h-5 text-green-600" />
+                                                <ArrowUpRight className="w-5 h-5 text-purple-600" />
                                             ) : (
-                                                <ArrowDownRight className="w-5 h-5 text-red-600" />
+                                                <ArrowDownRight className="w-5 h-5 text-gray-600" />
                                             )}
                                         </div>
                                         <div>
@@ -78,7 +96,7 @@ export function RecentMovements() {
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <div className={`font-bold text-lg ${movement.isPositive ? 'text-green-600' : 'text-red-600'
+                                        <div className={`font-bold text-lg ${movement.isPositive ? 'text-purple-600' : 'text-gray-600'
                                             }`}>
                                             {movement.isPositive ? '+' : '-'} {movement.total}
                                         </div>

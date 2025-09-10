@@ -12,6 +12,7 @@ import { PriceAlerts } from "@/components/Investment/PriceAlerts"
 import { IncomeCalculator } from "@/components/Investment/IncomeCalculator"
 import { SectorAllocation } from "@/components/Investment/SectorAllocation"
 import { RecentMovements } from "@/components/Investment/RecentMovements"
+import { PortfolioChart } from "@/components/Investment/PortfolioChart"
 
 const metrics = [
     {
@@ -36,7 +37,7 @@ const metrics = [
         color: "text-[#6D28D9]",
     },
     {
-        title: "Meta Anual",
+        title: "Meta Total",
         value: "R$ 100.000",
         indicator: "85.4",
         icon: Target,
@@ -78,9 +79,15 @@ export default function InvestimentosPage() {
                 })}
             </div>
 
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-7">
+                <div className="col-span-3">
+                    <PortfolioChart />
+                </div>
+                <RecentMovements />
+            </div>
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-7">
                 <PriceAlerts />
-                
                 <MarketSummary />
             </div>
 
@@ -96,25 +103,9 @@ export default function InvestimentosPage() {
                 <SectorAllocation />
 
                 <div className="grid grid-cols-1 lg:grid-cols-1 gap-7">
-                    <IncomeCalculator />
                     <GoalsCard />
+                    <IncomeCalculator />
                 </div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-7">
-                <RecentMovements />
-
-                <Card className="gap-2 h-full">
-                    <CardHeader>
-                        <CardTitle>Sugestão da IA</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <hr className="mb-4 border-gray-200" />
-                        <div className="space-y-3">
-                            Sugestão da IA aqui
-                        </div>
-                    </CardContent>
-                </Card>
             </div>
         </div>
     )

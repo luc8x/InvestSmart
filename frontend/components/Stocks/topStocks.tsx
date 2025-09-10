@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "../ui/scroll-area";
 
 const SYMBOLS = ["PETR4", "VALE3", "ITUB4", "BBDC4", "BBAS3", "ABEV3", "WEGE3", "SUZB3", "ELET3", "CSNA3"];
-const CACHE_EXPIRY_TIME = 5 * 60 * 1000; // 5 minutes in milliseconds
+const CACHE_EXPIRY_TIME = 15 * 60 * 1000; //15
 
 // Dados de fallback para quando a API falhar
 const FALLBACK_DATA: Stock[] = [
@@ -294,9 +294,8 @@ export function TopStocksCard() {
                                                                 </Tooltip>
                                                             </td>
                                                             <td className="px-4 py-3 text-end">
-                                                                <Badge 
-                                                                    variant={stock.percentChange < 0 && "destructive"}
-                                                                    className={`font-medium gap-1 ${stock.percentChange >= 0 && "bg-purple-700 text-white"}`}
+                                                                <Badge
+                                                                    className={`font-medium gap-1 ${stock.percentChange >= 0 ? "bg-purple-700 text-white" : "bg-gray-200 text-gray-700"}`}
                                                                 >
                                                                     {stock.percentChange >= 0 ? (
                                                                         <TrendingUp className="h-3 w-3" />
