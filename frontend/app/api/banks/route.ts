@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-
 const bancosBrasileiros = [
   { codigo: '001', nome: 'Banco do Brasil S.A.' },
   { codigo: '033', nome: 'Banco Santander (Brasil) S.A.' },

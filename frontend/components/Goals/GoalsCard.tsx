@@ -13,7 +13,7 @@ export function GoalsCard() {
                 </div>
             </CardHeader>
             <CardContent>
-                <Progress value={45} className="h-3 rounded-full" />
+                <Progress color="#A855F7" value={45} className="h-3 rounded-full" />
                 <div className="flex justify-between items-center mt-2 text-sm text-muted-foreground">
                     <span>R$ 45.000 alcançado</span>
                     <span>R$ 55.000 restante</span>

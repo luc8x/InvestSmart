@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { registerUser } from "@/lib/userServices/usersServices";
+import { registerUser } from "@/services/users/userServices/usersServices";
 import Alert from "@/components/ui/alert";
 import Link from "next/link";
 

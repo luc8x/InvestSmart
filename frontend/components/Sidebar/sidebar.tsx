@@ -14,6 +14,7 @@ import { cn } from "@/lib/utilities/utils"
 import {
   Home,
   Landmark,
+  PiggyBank,
 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
@@ -66,9 +67,12 @@ export function AppSidebar({ isTransitioning }: { isTransitioning?: boolean }) {
             <hr className="my-2 border-white/30" />
             <SidebarMenuItem>
               <SidebarLink href="/painel" icon={<Home size={20} />} label="Painel" isTransitioning={isTransitioning} />
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarLink href="/bancos" icon={<Landmark size={20} />} label="Banco" isTransitioning={isTransitioning} />
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarLink href="/bancos" icon={<Landmark size={20} />} label="Banco" isTransitioning={isTransitioning} />
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarLink href="/investimentos" icon={<PiggyBank size={20} />} label="Investimentos" isTransitioning={isTransitioning} />
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>

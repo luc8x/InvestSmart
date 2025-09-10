@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import Alert from "@/components/ui/alert";
 import { User, Eye, EyeOff, DoorOpen } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { loginUser } from "@/lib/userServices/usersServices";
+import { login } from "@/services/Users/user";
 import { Button } from "@/components/ui";
 import Link from "next/link";
 
@@ -31,7 +31,7 @@ export default function loginPage() {
         const cpfLimpo = cpf.replace(/\D/g, "");
 
         try {
-            const ok = await loginUser(cpfLimpo, password);
+            const ok = await login(cpfLimpo, password);
             if (ok) {
                 router.push('/painel');
             } else {
