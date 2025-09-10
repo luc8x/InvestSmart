@@ -1,4 +1,4 @@
-import { api } from '../api/api';
+import { api } from '../Api/api';
 
 export const registerBank = async (data: any) => {
   const response = await api.post('/api/bancos/cadastrar/', data, {

@@ -3,14 +3,23 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useState, useEffect, useCallback, useRef } from "react"
-import { fetchFinancialNews, NewsItem } from "@/lib/newsFinance/newsService"
+import { fetchFinancialNews, NewsItem } from "@/services/NewsFinance/newsService"
 import { Loader2, Newspaper, Sparkles } from "lucide-react"
 import { GoogleGenerativeAI } from "@google/generative-ai"
+import { Button } from "@/components/ui/button"
+
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+
+interface CacheData {
+  noticias: NewsItem[]
+  timestamp: number
+  hasMore: boolean
+  nextPage: number
+}
 
 export function BankNews() {
   const [noticias, setNoticias] = useState<NewsItem[]>([])
@@ -21,18 +30,67 @@ export function BankNews() {
   const [error, setError] = useState<string | null>(null)
   const [summaries, setSummaries] = useState<{ [key: string]: string }>({})
   const [loadingSummaries, setLoadingSummaries] = useState<{ [key: string]: boolean }>({})
+  const [isFromCache, setIsFromCache] = useState(false)
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const observerRef = useRef<IntersectionObserver | null>(null)
   const loadingRef = useRef<HTMLDivElement>(null)
 
   const GEMINI_API_KEY = 'AIzaSyBl5kdYCkq3E0sS5lxVA5IbvDPsRu7TehI'
   const genAI = new GoogleGenerativeAI(GEMINI_API_KEY)
+  const CACHE_KEY = 'bank_news_cache'
+  const CACHE_DURATION = 2 * 60 * 60 * 1000 // 2 horas em millisegundos
+
+  const getCachedNews = (): CacheData | null => {
+    try {
+      const cached = localStorage.getItem(CACHE_KEY)
+      if (!cached) return null
+      
+      const data: CacheData = JSON.parse(cached)
+      const now = Date.now()
+      
+      // Verifica se o cache ainda é válido (2 horas)
+      if (now - data.timestamp > CACHE_DURATION) {
+        localStorage.removeItem(CACHE_KEY)
+        return null
+      }
+      
+      return data
+    } catch (error) {
+      console.error('Erro ao ler cache:', error)
+      localStorage.removeItem(CACHE_KEY)
+      return null
+    }
+  }
+
+  const setCachedNews = (data: Omit<CacheData, 'timestamp'>) => {
+    try {
+      const cacheData: CacheData = {
+        ...data,
+        timestamp: Date.now()
+      }
+      localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData))
+    } catch (error) {
+      console.error('Erro ao salvar cache:', error)
+    }
+  }
 
   const loadNews = useCallback(async (pageNum: number, isInitial = false) => {
     try {
       if (isInitial) {
         setLoading(true)
         setError(null)
+        
+        // Verifica se há dados em cache para a primeira página
+         const cachedData = getCachedNews()
+         if (cachedData && pageNum === 1) {
+           setNoticias(cachedData.noticias)
+           setHasMore(cachedData.hasMore)
+           setPage(cachedData.nextPage)
+           setIsFromCache(true)
+           setLoading(false)
+           return
+         }
+         setIsFromCache(false)
       } else {
         setLoadingMore(true)
       }
@@ -41,6 +99,14 @@ export function BankNews() {
 
       if (isInitial) {
         setNoticias(response.noticias)
+        // Salva no cache apenas a primeira página
+        if (pageNum === 1) {
+          setCachedNews({
+            noticias: response.noticias,
+            hasMore: response.hasMore,
+            nextPage: response.nextPage
+          })
+        }
       } else {
         setNoticias(prev => [...prev, ...response.noticias])
       }
@@ -160,11 +226,22 @@ export function BankNews() {
     )
   }
 
+  const clearCache = () => {
+    localStorage.removeItem(CACHE_KEY)
+    setIsFromCache(false)
+    loadNews(1, true)
+  }
+
   return (
     <Card className="gap-2 h-full">
       <CardHeader>
-        <div className="flex items-center gap-2">
-          <CardTitle>Notícias</CardTitle>
+        <div className="flex items-center justify-between">
+            <CardTitle>Notícias</CardTitle>
+            {isFromCache && (
+              <Button variant="outline" size="sm" className="hover:bg-purple-50 hover:text-purple-700" onClick={clearCache}>
+                Atualizar
+              </Button>
+            )}
         </div>
       </CardHeader>
       <CardContent>
@@ -187,7 +264,8 @@ export function BankNews() {
                     </h4>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <button
+                        <Button
+                          variant="transparent"
                           onClick={(e) => {
                             e.stopPropagation()
                             if (!hasSummary) {
@@ -209,7 +287,7 @@ export function BankNews() {
                               fill={hasSummary ? "currentColor" : "none"}
                             />
                           )}
-                        </button>
+                        </Button>
                       </TooltipTrigger>
 
                       {!hasSummary && (

@@ -8,7 +8,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { LogOut, CircleUser } from "lucide-react"
 import { Layout } from "@/components/LayoutBase/layoutContainer"
 import React from "react"
-import { logoutUser } from "@/services/users/user"
+import { logoutUser } from "@/services/Users/user"
 
 
 export default function PrivateLayout({ children }: { children: React.ReactNode }) {

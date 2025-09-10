@@ -1,5 +1,5 @@
 import nookies from "nookies";
-import api from "../api/api";
+import api from "../Api/api";
 
 export const getAccessToken = () => {
   const cookies = nookies.get(null);

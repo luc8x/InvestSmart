@@ -1,4 +1,4 @@
-import { api } from '@/services/api/api';
+import { api } from '@/services/Api/api';
 
 export const resetPassword = async (email:string) => {
   const response = await api.post('/api/users/esqueceu_a_senha/', { email });

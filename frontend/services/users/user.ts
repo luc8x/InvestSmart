@@ -1,4 +1,4 @@
-import { api } from '@/services/api/api';
+import { api } from '@/services/Api/api';
 import nookies from 'nookies';
 
 export const login = async (cpf: string, password: string) => {

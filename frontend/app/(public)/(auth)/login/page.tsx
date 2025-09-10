@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import Alert from "@/components/ui/alert";
 import { User, Eye, EyeOff, DoorOpen } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { login } from "@/services/users/user";
+import { login } from "@/services/Users/user";
 import { Button } from "@/components/ui";
 import Link from "next/link";
 

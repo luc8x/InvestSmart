@@ -2,7 +2,7 @@
 
 import BankList from "@/components/Banks/BankList"
 import { BankTop5 } from "@/components/Banks/BankTop5"
-import { BankNews } from "@/components/Banks/BankNews"
+import { BankNews } from "@/components/NewsFinance/News"
 import { Card, CardHeader } from "@/components/ui/card"
 import {
   DollarSign,

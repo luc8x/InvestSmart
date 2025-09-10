@@ -1,6 +1,6 @@
 import nookies from "nookies";
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from "axios";
-import { getAccessToken, refreshAccessToken } from "../auth/auth";
+import { getAccessToken, refreshAccessToken } from "../Auth/auth";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
