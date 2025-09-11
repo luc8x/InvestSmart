@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { registerUser } from "@/services/users/userServices/usersServices";
-import Alert from "@/components/ui/alert";
+import { registerUser } from "@/services/Users/user";
+import { Alert } from "@/components/ui/alert";
 import Link from "next/link";
 
 export default function LoginPage() {

@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/sidebar"
 import { cn } from "@/lib/utilities/utils"
 import {
+  BanknoteArrowDown,
   Home,
   Landmark,
   PiggyBank,
@@ -73,6 +74,9 @@ export function AppSidebar({ isTransitioning }: { isTransitioning?: boolean }) {
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarLink href="/investimentos" icon={<PiggyBank size={20} />} label="Investimentos" isTransitioning={isTransitioning} />
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarLink href="/gastos" icon={<BanknoteArrowDown  size={20} />} label="Gastos" isTransitioning={isTransitioning} />
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>

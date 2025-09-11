@@ -339,7 +339,7 @@ function ComparisonView({ results }: { results: any }) {
     }
 
     return (
-        <div className="space-y-4 flex flex-col gap-4 min-h-[460px]">
+        <div className="space-y-4 min-h-[460px]">
             <h3 className="font-semibold text-gray-800">Comparação de Resultados</h3>
             {investments.map((inv, index) => (
                 <div key={inv.name} className={`p-4 rounded-lg border-2 ${

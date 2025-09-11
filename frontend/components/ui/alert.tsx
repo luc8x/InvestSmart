@@ -1,78 +1,59 @@
-"use client";
+import * as React from "react"
+import { cva, type VariantProps } from "class-variance-authority"
 
-import React, { useEffect, useState } from "react";
-import {
-  AlertCircle,
-  CheckCircle,
-  Info,
-  AlertTriangle,
-  X,
-} from "lucide-react";
+import { cn } from "@/lib/utilities/utils"
 
-interface AlertProps {
-  message: string;
-  type?: "error" | "success" | "info" | "warning";
-  onClose: () => void;
-  duration?: number;
-}
+const alertVariants = cva(
+  "relative w-full rounded-lg border px-4 py-3 text-sm [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground [&>svg~*]:pl-7",
+  {
+    variants: {
+      variant: {
+        default: "bg-background text-foreground",
+        destructive:
+          "border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  }
+)
 
-const typeStyles = {
-  error: {
-    bg: "bg-red-600",
-    icon: <AlertCircle className="w-5 h-5 mr-2" />,
-  },
-  success: {
-    bg: "bg-green-600",
-    icon: <CheckCircle className="w-5 h-5 mr-2" />,
-  },
-  info: {
-    bg: "bg-blue-600",
-    icon: <Info className="w-5 h-5 mr-2" />,
-  },
-  warning: {
-    bg: "bg-yellow-500 text-black",
-    icon: <AlertTriangle className="w-5 h-5 mr-2" />,
-  },
-};
+const Alert = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement> & VariantProps<typeof alertVariants>
+>(({ className, variant, ...props }, ref) => (
+  <div
+    ref={ref}
+    role="alert"
+    className={cn(alertVariants({ variant }), className)}
+    {...props}
+  />
+))
+Alert.displayName = "Alert"
 
-export default function Alert({
-  message,
-  type = "info",
-  onClose,
-}: AlertProps) {
-  const [closing, setClosing] = useState(false);
+const AlertTitle = React.forwardRef<
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLHeadingElement>
+>(({ className, ...props }, ref) => (
+  <h5
+    ref={ref}
+    className={cn("mb-1 font-medium leading-none tracking-tight", className)}
+    {...props}
+  />
+))
+AlertTitle.displayName = "AlertTitle"
 
-  useEffect(() => {
-    const timer = setTimeout(() => setClosing(true), 3300);
-    return () => clearTimeout(timer);
-  }, [3300]);
+const AlertDescription = React.forwardRef<
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLParagraphElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("text-sm [&_p]:leading-relaxed", className)}
+    {...props}
+  />
+))
+AlertDescription.displayName = "AlertDescription"
 
-  useEffect(() => {
-    if (closing) {
-      const fadeOut = setTimeout(onClose, 300);
-      return () => clearTimeout(fadeOut);
-    }
-  }, [closing, onClose]);
-
-  const style = typeStyles[type];
-
-  return (
-    <div
-      className={`fixed top-4 right-4 z-50 text-white px-4 py-3 rounded-lg shadow-lg flex items-center justify-between gap-4 transition-all duration-300 transform ${
-        style.bg
-      } ${closing ? "opacity-0 translate-x-5" : "opacity-100 translate-x-0"}`}
-    >
-      <div className="flex items-center">
-        {style.icon}
-        <span className="text-sm">{message}</span>
-      </div>
-      <button
-        onClick={() => setClosing(true)}
-        aria-label="Fechar alerta"
-        className="hover:opacity-75"
-      >
-        <X className="w-4 h-4" />
-      </button>
-    </div>
-  );
-}
+export { Alert, AlertTitle, AlertDescription }

@@ -56,7 +56,7 @@ export default function BankPieChart({ chartData, hoveredIndex, setHoveredIndex,
                 strokeDasharray="4 4"
               />
             ))}
-            
+
             <Pie
               data={chartData}
               cx="50%"

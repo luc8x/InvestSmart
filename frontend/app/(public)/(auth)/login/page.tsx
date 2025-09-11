@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from 'next/navigation';
-import Alert from "@/components/ui/alert";
+import { Alert } from "@/components/ui/alert";
 import { User, Eye, EyeOff, DoorOpen } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { login } from "@/services/Users/user";

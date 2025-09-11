@@ -29,6 +29,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/users/', include("users.urls")),
     path('api/bancos/', include("bancos.urls")),
+    path('api/investimentos/', include("investimentos.urls")),
     
     # Endpoints JWT do SimpleJWT
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),

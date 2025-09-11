@@ -9,8 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "../ui/scroll-area";
 
-const SYMBOLS = ["PETR4", "VALE3", "ITUB4", "BBDC4", "BBAS3", "ABEV3", "WEGE3", "SUZB3", "ELET3", "CSNA3"];
-const CACHE_EXPIRY_TIME = 15 * 60 * 1000; //15
+const CACHE_EXPIRY_TIME = 15 * 60 * 1000; // 15 minutos
 
 // Dados de fallback para quando a API falhar
 const FALLBACK_DATA: Stock[] = [
@@ -35,6 +34,22 @@ interface Stock {
     lastUpdated?: number;
 }
 
+interface ApiStock {
+    ticker: string;
+    nome: string;
+    preco_atual: number;
+    variacao_percentual: number;
+    market_cap: number;
+    volume: number;
+    setor: string;
+}
+
+interface ApiResponse {
+    success: boolean;
+    data: ApiStock[];
+    message?: string;
+}
+
 interface CachedData {
     data: Stock[];
     timestamp: number;
@@ -47,7 +62,7 @@ export function TopStocksCard() {
     const [error, setError] = useState<string | null>(null);
     const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
-    // Function to fetch data with caching
+    // Function to fetch data with caching and rate limiting
     const fetchStockData = useCallback(async (forceRefresh = false) => {
         setIsLoading(true);
         setError(null);
@@ -70,46 +85,59 @@ export function TopStocksCard() {
                 }
             }
 
-            // Fetch fresh data
-            const results: Stock[] = [];
-
-            for (const symbol of SYMBOLS) {
-                try {
-                    const res = await fetch(
-                        `https://api.twelvedata.com/quote?symbol=${symbol}&apikey=a6e694d90690402fb29f0de8215814a7`
-                    );
-                    
-                    if (!res.ok) {
-                        console.warn(`API request failed for ${symbol} with status ${res.status}`);
-                        continue;
+            // Check rate limiting - prevent requests more frequent than every 30 seconds
+            const lastRequestTime = localStorage.getItem("lastStockRequest");
+            const now = Date.now();
+            if (lastRequestTime && !forceRefresh) {
+                const timeSinceLastRequest = now - parseInt(lastRequestTime);
+                if (timeSinceLastRequest < 30000) { // 30 seconds
+                    console.log('Rate limited: waiting before next request');
+                    // Use cached data if available
+                    const cachedData = localStorage.getItem("stocksCache");
+                    if (cachedData) {
+                        const { data, timestamp }: CachedData = JSON.parse(cachedData);
+                        setStocks(data);
+                        setLastUpdated(new Date(timestamp));
+                        setIsLoading(false);
+                        setError("Aguardando para evitar muitas requisições...");
+                        return;
                     }
-                    
-                    const data = await res.json();
-                    console.log(`Data received for ${symbol}:`, data);
-
-                    if (data.code) {
-                        console.warn(`API error for ${symbol}: ${data.message || 'Unknown error'}`);
-                        continue;
-                    }
-
-                    if (!data.symbol || !data.name || !data.close) {
-                        console.warn(`Invalid data structure for ${symbol}:`, data);
-                        continue;
-                    }
-
-                    results.push({
-                        symbol: data.symbol,
-                        name: data.name,
-                        price: parseFloat(data.close) || 0,
-                        change: parseFloat(data.change) || 0,
-                        percentChange: parseFloat(data.percent_change) || 0,
-                        lastUpdated: Date.now()
-                    });
-                } catch (symbolError) {
-                    console.error(`Error processing ${symbol}:`, symbolError);
-                    continue;
                 }
             }
+
+            // Store request timestamp
+            localStorage.setItem("lastStockRequest", now.toString());
+
+            // Fetch fresh data from our backend API
+            const res = await fetch(
+                `http://localhost:8000/api/investimentos/top-acoes-brasil/`
+            );
+            
+            if (!res.ok) {
+                throw new Error(`API request failed with status ${res.status}`);
+            }
+            
+            const apiResponse: ApiResponse = await res.json();
+            console.log('API Response:', apiResponse);
+
+            if (!apiResponse.success || !apiResponse.data) {
+                throw new Error(apiResponse.message || 'API returned unsuccessful response');
+            }
+
+            // Transform API data to our Stock interface
+            const results: Stock[] = apiResponse.data.map((apiStock: ApiStock) => ({
+                symbol: apiStock.ticker,
+                name: apiStock.nome,
+                price: apiStock.preco_atual,
+                change: 0, // Calculamos a variação baseada no percentual
+                percentChange: apiStock.variacao_percentual,
+                lastUpdated: Date.now()
+            }));
+
+            // Calcular a variação em valor absoluto baseada no percentual
+            results.forEach(stock => {
+                stock.change = (stock.price * stock.percentChange) / 100;
+            });
 
             // Update state and cache
             if (results.length > 0) {
@@ -151,8 +179,8 @@ export function TopStocksCard() {
     useEffect(() => {
         fetchStockData();
         
-        // Set up interval for periodic updates
-        const interval = setInterval(() => fetchStockData(), 60000);
+        // Set up interval for periodic updates (increased to 5 minutes to avoid rate limiting)
+        const interval = setInterval(() => fetchStockData(), 5 * 60 * 1000); // 5 minutes
         return () => clearInterval(interval);
     }, [fetchStockData]);
 
@@ -284,14 +312,7 @@ export function TopStocksCard() {
                                                             <td className="px-4 py-3 font-medium">{stock.symbol}</td>
                                                             <td className="px-4 py-3 text-muted-foreground">{stock.name}</td>
                                                             <td className="px-4 py-3 font-medium text-center">
-                                                                <Tooltip>
-                                                                    <TooltipTrigger asChild>
-                                                                        <span>R$ {stock.price.toFixed(2)}</span>
-                                                                    </TooltipTrigger>
-                                                                    <TooltipContent>
-                                                                        <p>Preço de fechamento</p>
-                                                                    </TooltipContent>
-                                                                </Tooltip>
+                                                                <span>R$ {stock.price.toFixed(2)}</span>
                                                             </td>
                                                             <td className="px-4 py-3 text-end">
                                                                 <Badge

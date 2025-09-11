@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'users',
     'bancos',
+    'investimentos',
 ]
 
 MIDDLEWARE = [
@@ -75,6 +76,19 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+
+# Cache configuration
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+        'TIMEOUT': 300,  # 5 minutes default timeout
+        'OPTIONS': {
+            'MAX_ENTRIES': 1000,
+            'CULL_FREQUENCY': 3,
+        }
     }
 }
 
@@ -184,6 +198,11 @@ LOGGING = {
             'propagate': False,
         },
         'bancos': {
+            'handlers': ['console', 'api_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'investimentos': {
             'handlers': ['console', 'api_file'],
             'level': 'INFO',
             'propagate': False,
