@@ -36,16 +36,16 @@ export function OutgoingList({ gastos }: OutgoingListProps) {
             <Card className="gap-2">
                 <CardHeader>
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                        <CardTitle className="text-lg">Gastos ({gastos.length})</CardTitle>
+                        <CardTitle className="text-lg">Gastos</CardTitle>
                         <Badge variant="outline" className="self-start sm:self-center text-purple-600 border-purple-600">
                             Total: {formatarMoeda(totalGastos)}
                         </Badge>
                     </div>
                     <CardDescription className="text-sm">
-                        Lista de gastos
+                        Lista de gastos ({gastos.length})
                     </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-3">
                     <hr className="mb-4 border-gray-200" />
                     {gastos.length === 0 ? (
                         <Alert>

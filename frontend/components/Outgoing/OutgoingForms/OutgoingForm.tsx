@@ -12,7 +12,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Plus, Calendar as CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { NovoGasto, Gasto, CATEGORIAS } from "./types"
+import { NovoGasto, Gasto, CATEGORIAS } from "../types"
 
 interface GastoFormProps {
   onAdicionarGasto: (gasto: Omit<Gasto, 'id'>) => void
@@ -53,7 +53,7 @@ export function OutgoingForm({ onAdicionarGasto }: GastoFormProps) {
   return (
     <Dialog open={dialogAberto} onOpenChange={setDialogAberto}>
       <DialogTrigger asChild>
-        <Button variant={"outline"} className="gap-2 text-purple-600 hover:text-purple-700 border-purple-400">
+        <Button variant={"outline"} className="">
           <Plus className="h-4 w-4" />
           Novo Gasto
         </Button>

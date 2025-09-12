@@ -102,7 +102,7 @@ export default function BankPieChart({ chartData, hoveredIndex, setHoveredIndex,
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r from-blue-100 to-purple-100 flex items-center justify-center">
-                <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                <div className="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin" />
               </div>
               <p className="text-gray-500 font-medium">Carregando dados...</p>
             </div>

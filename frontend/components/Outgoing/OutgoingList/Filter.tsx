@@ -23,9 +23,9 @@ export function Filter({}: FilterProps) {
             <CardContent className="space-y-4">
                 <hr className="mb-4 border-gray-200" />
                 <div className="flex flex-col md:flex-row gap-7 md:gap-4 items-center">
-                    <div>
+                    <div className="flex flex-col gap-1">
                         <Label htmlFor="busca" className="text-sm font-medium">Buscar</Label>
-                        <div className="relative mt-1">
+                        <div className="relative">
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                             <Input
                                 id="busca"
@@ -37,10 +37,10 @@ export function Filter({}: FilterProps) {
                             />
                         </div>
                     </div>
-                    <div>
+                    <div className="flex flex-col gap-1">
                         <Label htmlFor="categoria" className="text-sm font-medium">Categoria</Label>
                         <Select disabled>
-                            <SelectTrigger className="mt-1 min-w-60">
+                            <SelectTrigger className="min-w-60">
                                 <SelectValue placeholder="Todas as categorias" />
                             </SelectTrigger>
                             <SelectContent>
@@ -56,10 +56,10 @@ export function Filter({}: FilterProps) {
                         </Select>
                     </div>
 
-                    <div>
+                    <div className="flex flex-col gap-1">
                         <Label htmlFor="mes" className="text-sm font-medium">Mês</Label>
                         <Select disabled>
-                            <SelectTrigger className="mt-1 min-w-60">
+                            <SelectTrigger className=" min-w-60">
                                 <SelectValue placeholder="Todos os meses" />
                             </SelectTrigger>
                             <SelectContent>
@@ -73,10 +73,10 @@ export function Filter({}: FilterProps) {
                         </Select>
                     </div>
 
-                    <div>
+                    <div className="flex flex-col gap-1">
                         <Label htmlFor="ano" className="text-sm font-medium">Ano</Label>
                         <Select disabled>
-                            <SelectTrigger className="mt-1 min-w-60">
+                            <SelectTrigger className="min-w-60">
                                 <SelectValue placeholder="Todos os anos" />
                             </SelectTrigger>
                             <SelectContent>
@@ -93,10 +93,10 @@ export function Filter({}: FilterProps) {
                         </Select>
                     </div>
 
-                    <div>
+                    <div className="flex flex-col gap-1">
                         <Label htmlFor="ordenacao" className="text-sm font-medium">Ordenar por</Label>
                         <Select disabled>
-                            <SelectTrigger className="mt-1 min-w-60">
+                            <SelectTrigger className="min-w-60">
                                 <SelectValue placeholder="Ordenação" />
                             </SelectTrigger>
                             <SelectContent>

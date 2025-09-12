@@ -44,7 +44,7 @@ export function IncomeCalculator() {
             <CardContent>
                 <hr className="mb-4 border-gray-200" />
                 
-                <Tabs defaultValue="compound" className="w-full">
+                <Tabs defaultValue="compound" className="w-full flex flex-col gap-7">
                     <TabsList className="grid w-full grid-cols-4">
                         <TabsTrigger value="compound" className="text-xs">
                             <TrendingUp className="w-3 h-3 mr-1" />
@@ -65,22 +65,22 @@ export function IncomeCalculator() {
                     </TabsList>
 
                     {/* Juros Compostos */}
-                    <TabsContent value="compound" className="space-y-4 pt-5">
+                    <TabsContent value="compound" className="space-y-4">
                         <CompoundCalculator onCalculate={(result) => setResults(prev => ({ ...prev, compound: result }))} />
                     </TabsContent>
 
                     {/* CDI */}
-                    <TabsContent value="cdi" className="space-y-4 pt-5">
+                    <TabsContent value="cdi" className="space-y-4">
                         <CDICalculator onCalculate={(result) => setResults(prev => ({ ...prev, cdi: result }))} />
                     </TabsContent>
 
                     {/* Tesouro Direto */}
-                    <TabsContent value="treasury" className="space-y-4 pt-5">
+                    <TabsContent value="treasury" className="space-y-4">
                         <TreasuryCalculator onCalculate={(result) => setResults(prev => ({ ...prev, treasury: result }))} />
                     </TabsContent>
 
                     {/* Comparação */}
-                    <TabsContent value="comparison" className="space-y-4 pt-5">
+                    <TabsContent value="comparison" className="space-y-4">
                         <ComparisonView results={results} />
                     </TabsContent>
                 </Tabs>

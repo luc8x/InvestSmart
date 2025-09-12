@@ -1,107 +1,159 @@
 "use client"
 
-import { useMemo } from "react"
+import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Switch } from "@/components/ui/switch"
-import { Zap, AlertTriangle, Lightbulb } from "lucide-react"
-import { subMonths, isSameMonth } from "date-fns"
-import { Gasto, InsightData, CATEGORIAS } from "./types"
+import { Button } from "@/components/ui/button"
+import { 
+  AlertTriangle, 
+  Lightbulb, 
+  TrendingUp, 
+  Target,
+  Calendar,
+  ChevronDown
+} from "lucide-react"
 
 interface InsightsCardProps {
-  gastos: Gasto[]
+  gastos?: any[]
+  gastosFiltrados?: any[]
+  gastosPorCategoria?: any[]
+  totalGastos?: number
   insightsAtivos: boolean
   onToggleInsights: (ativo: boolean) => void
 }
 
-export function InsightsCard({ gastos, insightsAtivos, onToggleInsights }: InsightsCardProps) {
-  const analisarInsights = useMemo(() => {
-    if (!insightsAtivos || gastos.length < 3) return []
-    
-    const insights: InsightData[] = []
-    const agora = new Date()
-    const ultimosMeses = Array.from({ length: 3 }, (_, i) => subMonths(agora, i))
-    
-    // Calcular médias por categoria
-    const mediasPorCategoria = CATEGORIAS.map(categoria => {
-      const gastosCategoria = gastos.filter(g => g.categoria === categoria.nome)
-      const gastosPorMes = ultimosMeses.map(mes => {
-        const gastosDoMes = gastosCategoria.filter(g => isSameMonth(g.data, mes))
-        return gastosDoMes.reduce((acc, g) => acc + g.valor, 0)
-      })
-      const media = gastosPorMes.reduce((acc, val) => acc + val, 0) / gastosPorMes.length
-      return { categoria: categoria.nome, media, atual: gastosPorMes[0] }
-    })
-    
-    // Alertas de gastos acima da média
-    mediasPorCategoria.forEach(({ categoria, media, atual }) => {
-      if (atual > media * 1.3 && media > 0) {
-        insights.push({
-          tipo: 'alerta',
-          titulo: `Gasto elevado em ${categoria}`,
-          descricao: `Você gastou R$ ${atual.toFixed(2)} este mês, ${((atual/media - 1) * 100).toFixed(0)}% acima da média.`,
-          icone: AlertTriangle,
-          cor: 'text-red-600'
-        })
-      }
-    })
-    
-    // Sugestões de economia para assinaturas
-    const assinaturas = gastos.filter(g => 
-      g.descricao.toLowerCase().includes('netflix') ||
-      g.descricao.toLowerCase().includes('spotify') ||
-      g.descricao.toLowerCase().includes('disney') ||
-      g.descricao.toLowerCase().includes('amazon prime') ||
-      g.descricao.toLowerCase().includes('youtube premium')
-    )
-    
-    if (assinaturas.length >= 2) {
-      const totalAssinaturas = assinaturas.reduce((acc, g) => acc + g.valor, 0)
-      insights.push({
-        tipo: 'economia',
-        titulo: 'Oportunidade de economia',
-        descricao: `Suas assinaturas somam R$ ${totalAssinaturas.toFixed(2)}/mês. Considere revisar quais realmente usa.`,
-        icone: Lightbulb,
-        cor: 'text-yellow-600'
-      })
-    }
-    
-    return insights
-  }, [gastos, insightsAtivos])
+const mockInsights = [
+  {
+    id: 1,
+    tipo: 'alerta',
+    titulo: 'Gasto elevado em Alimentação',
+    descricao: 'Você gastou R$ 1.250,00 este mês, 35% acima da sua média mensal.',
+    icone: AlertTriangle,
+    valor: 1250,
+    variacao: '+35%',
+    categoria: 'Alimentação'
+  },
+  {
+    id: 2,
+    tipo: 'economia',
+    titulo: 'Oportunidade de economia',
+    descricao: 'Suas assinaturas somam R$ 89,90/mês. Considere revisar quais realmente usa.',
+    icone: Lightbulb,
+    valor: 89.90,
+    variacao: 'R$ 30 economia possível',
+    categoria: 'Assinaturas'
+  },
+  {
+    id: 3,
+    tipo: 'meta',
+    titulo: 'Meta de transporte atingida',
+    descricao: 'Você conseguiu reduzir seus gastos com transporte em 20% este mês.',
+    icone: Target,
+    valor: 320,
+    variacao: '-20%',
+    categoria: 'Transporte'
+  },
+  {
+    id: 4,
+    tipo: 'tendencia',
+    titulo: 'Tendência de crescimento',
+    descricao: 'Seus gastos com entretenimento aumentaram 15% nos últimos 3 meses.',
+    icone: TrendingUp,
+    valor: 450,
+    variacao: '+15%',
+    categoria: 'Entretenimento'
+  }
+]
+
+export function InsightsCard({ insightsAtivos, onToggleInsights }: InsightsCardProps) {
+  const [insightsSelecionados] = useState(mockInsights)
+  const [insightsRecolhidos, setInsightsRecolhidos] = useState(false)
+  
+  const formatarMoeda = (valor: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(valor)
+  }
+  
+
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <div className="flex items-center gap-2">
-          <Zap className="h-5 w-5 text-blue-600" />
-          <CardTitle>Insights Inteligentes</CardTitle>
+    <Card className="border-purple-100 shadow-sm gap-2">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="text-lg font-medium text-gray-900">
+              Insights Inteligentes
+            </CardTitle>
+            <p className="text-sm text-gray-500 mt-1">
+              Análises automáticas dos seus gastos
+            </p>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setInsightsRecolhidos(!insightsRecolhidos)}
+            className="text-purple-600 hover:text-purple-700 hover:bg-purple-50/50 transition-all duration-200 px-3"
+          >
+            <div className={`transition-transform duration-300 ${insightsRecolhidos ? 'rotate-0' : 'rotate-180'}`}>
+              <ChevronDown className="w-4 h-4 mr-2" />
+            </div>
+            {insightsRecolhidos ? 'Expandir' : 'Recolher'}
+          </Button>
         </div>
-        <Switch 
-          checked={insightsAtivos} 
-          onCheckedChange={onToggleInsights}
-        />
       </CardHeader>
-      <CardContent>
-        {insightsAtivos && analisarInsights.length > 0 ? (
-          <div className="space-y-3">
-            {analisarInsights.map((insight, index) => {
-              const Icon = insight.icone
+      
+      <div className={`transition-all duration-500 ease-in-out overflow-hidden ${
+        insightsRecolhidos 
+          ? 'max-h-0 opacity-0 transform -translate-y-2' 
+          : 'max-h-[2000px] opacity-100 transform translate-y-0'
+      }`}>
+        <CardContent className="transition-all duration-300 pt-0">
+          <div className="space-y-6">
+            {insightsSelecionados.map((insight) => {
+              const IconeInsight = insight.icone
               return (
-                <div key={index} className="flex items-start gap-3 p-3 border rounded-lg">
-                  <Icon className={`h-5 w-5 mt-0.5 ${insight.cor}`} />
-                  <div className="flex-1">
-                    <h4 className="font-medium">{insight.titulo}</h4>
-                    <p className="text-sm text-muted-foreground">{insight.descricao}</p>
+                <div
+                  key={insight.id}
+                  className="p-4 rounded-lg border transition-all duration-200 hover:shadow-md bg-white"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-full bg-purple-50">
+                      <IconeInsight className="w-4 h-4 text-purple-600" />
+                    </div>
+                    
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-medium text-gray-900 text-sm">
+                          {insight.titulo}
+                        </h4>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-gray-500">
+                            {insight.variacao}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <p className="text-sm text-gray-600 mb-3 leading-relaxed">
+                        {insight.descricao}
+                      </p>
+                      
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-purple-600 bg-purple-50 px-2 py-1 rounded-full">
+                          {insight.categoria}
+                        </span>
+                        <span className="text-sm font-medium text-gray-900">
+                          {formatarMoeda(insight.valor)}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )
             })}
           </div>
-        ) : (
-          <p className="text-sm text-muted-foreground">
-            {insightsAtivos ? 'Adicione mais gastos para receber insights personalizados.' : 'Insights desativados'}
-          </p>
-        )}
-      </CardContent>
+        </CardContent>
+      </div>
     </Card>
   )
 }
